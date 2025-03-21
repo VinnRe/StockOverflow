@@ -7,7 +7,6 @@ from models.database import Database
 from ui.inventory_page import InventoryPage
 from ui.recipe_page import RecipePage
 from ui.order_page import OrderPage
-from ui.analytics_page import AnalyticsPage
 from models.user import Admin
 
 class StockOverflowApp(tk.Tk):
@@ -121,17 +120,7 @@ class StockOverflowApp(tk.Tk):
             **green_button_style
         )
         self.orders_btn.grid(row=0, column=2, padx=5)
-        
-        # # Analytics button
-        # self.analytics_btn = tk.Button(
-        #     nav_buttons_frame, 
-        #     text="Analytics",
-        #     command=self.show_analytics,
-        #     **green_button_style
-        # )
-        # self.analytics_btn.grid(row=0, column=3, padx=5)
-        
-        # Profile button (Switch Profile) - with red outline
+
         self.profile_btn = tk.Button(
             nav_buttons_frame, 
             text="Switch Profile",
@@ -182,19 +171,6 @@ class StockOverflowApp(tk.Tk):
             self.normal_font
         )
         order_page.pack(fill=tk.BOTH, expand=True)
-    
-    # def show_analytics(self):
-    #     self.clear_content()
-    #     analytics_page = AnalyticsPage(
-    #         self.content_frame, 
-    #         self.db, 
-    #         self.config, 
-    #         self.current_user,
-    #         self.title_font,
-    #         self.header_font,
-    #         self.normal_font
-    #     )
-    #     analytics_page.pack(fill=tk.BOTH, expand=True)
     
     def switch_profile(self):
         # Create a dialog window
