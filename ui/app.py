@@ -1,8 +1,5 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, font
-import os
-from PIL import Image, ImageTk
-import json
 from datetime import datetime, timedelta
 
 from config.app_config import AppConfig
@@ -11,6 +8,7 @@ from ui.inventory_page import InventoryPage
 from ui.recipe_page import RecipePage
 from ui.order_page import OrderPage
 from ui.analytics_page import AnalyticsPage
+from models.user import Admin
 
 class StockOverflowApp(tk.Tk):
     def __init__(self):
@@ -28,7 +26,7 @@ class StockOverflowApp(tk.Tk):
         self.configure(bg=self.config.BG_COLOR)
         
         # Current user (mock for now)
-        self.current_user = {"username": "admin", "role": "Admin"}
+        self.current_user = {"username": "staff", "role": "Staff"}
         
         # Initialize UI components
         self.create_custom_fonts()
@@ -202,63 +200,99 @@ class StockOverflowApp(tk.Tk):
         # Create a dialog window
         dialog = tk.Toplevel(self)
         dialog.title("Switch User Profile")
-        dialog.geometry("300x200")
+        dialog.geometry("300x250")  # Increased height to accommodate login fields
         dialog.configure(bg=self.config.BG_COLOR)
         dialog.transient(self)
         dialog.grab_set()
-        
+
+        # Create an instance of Admin
+        self.admin = Admin()
+
         # Center the dialog on the screen
-        self.center_window(dialog, 300, 200)
-        
-        # Add profile selection options
-        tk.Label(
-            dialog, 
-            text="Select User Profile:",
-            font=self.header_font,
-            bg=self.config.BG_COLOR,
-            fg=self.config.TEXT_COLOR
-        ).pack(pady=10)
-        
-        # Role selection
-        role_var = tk.StringVar(value=self.current_user["role"])
-        tk.Radiobutton(
-            dialog, 
-            text="Admin", 
-            variable=role_var, 
-            value="Admin",
-            bg=self.config.BG_COLOR
-        ).pack(anchor=tk.W, padx=20, pady=5)
-        
-        tk.Radiobutton(
-            dialog, 
-            text="Staff", 
-            variable=role_var, 
-            value="Staff",
-            bg=self.config.BG_COLOR
-        ).pack(anchor=tk.W, padx=20, pady=5)
+        self.center_window(dialog, 300, 250)
+
+        if self.current_user.get("role") == "Staff" or self.current_user.get("role") == None: 
+            # Add username label and entry field
+            tk.Label(
+                dialog,
+                text="Username:",
+                font=self.header_font,
+                bg=self.config.BG_COLOR,
+                fg=self.config.TEXT_COLOR
+            ).pack(pady=(10, 0))
+            
+            username_entry = tk.Entry(dialog)
+            username_entry.pack(pady=(0, 10))
+
+            # Add password label and entry field
+            tk.Label(
+                dialog,
+                text="Password:",
+                font=self.header_font,
+                bg=self.config.BG_COLOR,
+                fg=self.config.TEXT_COLOR
+            ).pack()
+            
+            password_entry = tk.Entry(dialog, show="*")
+            password_entry.pack(pady=(0, 10))
+
+            # Button frame
+            button_frame = tk.Frame(dialog, bg=self.config.BG_COLOR)
+            button_frame.pack(fill=tk.X, pady=20)
+
+            # Login button
+            login_btn = tk.Button(
+                button_frame, 
+                text="Login",
+                command=lambda: self.handle_login(username_entry.get(), password_entry.get(), dialog),
+                **self.config.BUTTON_STYLES["primary"]
+            )
+            login_btn.pack(side=tk.LEFT, padx=10)
+
+            # Cancel button
+            cancel_btn = tk.Button(
+                button_frame, 
+                text="Cancel",
+                command=dialog.destroy,
+                **self.config.BUTTON_STYLES["secondary"]
+            )
+            cancel_btn.pack(side=tk.RIGHT, padx=10)
+
         
         # Button frame
         button_frame = tk.Frame(dialog, bg=self.config.BG_COLOR)
         button_frame.pack(fill=tk.X, pady=20)
         
-        # Switch button
-        switch_btn = tk.Button(
-            button_frame, 
-            text="Switch Profile",
-            command=lambda: self.change_user_profile(role_var.get(), dialog),
-            **self.config.BUTTON_STYLES["primary"]
-        )
-        switch_btn.pack(side=tk.LEFT, padx=10)
-        
-        # Cancel button
-        cancel_btn = tk.Button(
-            button_frame, 
-            text="Cancel",
-            command=dialog.destroy,
-            **self.config.BUTTON_STYLES["secondary"]
-        )
-        cancel_btn.pack(side=tk.RIGHT, padx=10)
-    
+        # Logout button
+        if self.current_user.get("role") == "Admin":
+            logout_btn = tk.Button(
+                button_frame, 
+                text="Logout",
+                command=lambda: (self.handle_logout(), dialog.destroy()),
+                **self.config.BUTTON_STYLES["secondary"]
+            )
+            logout_btn.pack(side=tk.LEFT, padx=10)
+
+
+    def handle_login(self, username, password, dialog):
+        if self.admin.login(username, password):
+            messagebox.showinfo("Success", "Login successful!")
+
+            self.current_user = {"username": username, "role": "Admin"}
+
+            dialog.destroy()
+        else:
+            messagebox.showwarning("Error", "Invalid username or password.")
+
+
+    def handle_logout(self):
+        if self.current_user.get("role") == "Admin":
+            self.admin.logout()
+            self.current_user = {"username": "staff", "role": "Staff"}
+            messagebox.showinfo("Success", "Logged out successfully.")
+        else:
+            messagebox.showwarning("Error", "You are not logged in.")
+
     def change_user_profile(self, role, dialog):
 
         self.current_user["role"] = role
