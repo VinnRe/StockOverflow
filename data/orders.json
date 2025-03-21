@@ -1,0 +1,30 @@
+[
+    {
+        "id": 1,
+        "date": "2025-03-20",
+        "items": [
+            {
+                "recipe_id": 1,
+                "quantity": 5
+            },
+            {
+                "recipe_id": 2,
+                "quantity": 3
+            }
+        ],
+        "total": 118.75,
+        "status": "Completed"
+    },
+    {
+        "id": 2,
+        "date": "2025-03-21",
+        "items": [
+            {
+                "recipe_id": 1,
+                "quantity": 2
+            }
+        ],
+        "total": 25.0,
+        "status": "In Progress"
+    }
+]

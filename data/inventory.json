@@ -1,0 +1,42 @@
+[
+    {
+        "id": 1,
+        "name": "Tomatoes",
+        "quantity": 20,
+        "unit": "kg",
+        "expiry": "2025-03-28",
+        "category": "Vegetables"
+    },
+    {
+        "id": 2,
+        "name": "Chicken Breast",
+        "quantity": 15,
+        "unit": "kg",
+        "expiry": "2025-03-24",
+        "category": "Meat"
+    },
+    {
+        "id": 3,
+        "name": "Olive Oil",
+        "quantity": 5,
+        "unit": "L",
+        "expiry": "2025-09-17",
+        "category": "Oils"
+    },
+    {
+        "id": 4,
+        "name": "Flour",
+        "quantity": 25,
+        "unit": "kg",
+        "expiry": "2025-06-19",
+        "category": "Dry Goods"
+    },
+    {
+        "id": 5,
+        "name": "Milk",
+        "quantity": 10,
+        "unit": "L",
+        "expiry": "2025-03-26",
+        "category": "Dairy"
+    }
+]
