@@ -3,8 +3,6 @@ Application configuration module
 """
 
 class AppConfig:
-    """Configuration class to store app settings"""
-    
     # App color scheme
     PRIMARY_COLOR = "#2E7D32"  # Dark green
     SECONDARY_COLOR = "#C62828"  # Dark red

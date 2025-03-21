@@ -1,7 +1,3 @@
-"""
-Main application class for StockOverflow
-"""
-
 import tkinter as tk
 from tkinter import ttk, messagebox, font
 import os
@@ -17,8 +13,6 @@ from ui.order_page import OrderPage
 from ui.analytics_page import AnalyticsPage
 
 class StockOverflowApp(tk.Tk):
-    """Main application class"""
-    
     def __init__(self):
         super().__init__()
         
@@ -41,14 +35,12 @@ class StockOverflowApp(tk.Tk):
         self.create_ui()
         
     def create_custom_fonts(self):
-        """Create custom fonts for the application"""
         self.title_font = font.Font(family="Helvetica", size=16, weight="bold")
         self.header_font = font.Font(family="Helvetica", size=14, weight="bold")
         self.normal_font = font.Font(family="Helvetica", size=10)
         self.button_font = font.Font(family="Helvetica", size=10, weight="bold")
     
     def create_ui(self):
-        """Create the main UI"""
         # Create main container frame
         self.main_frame = tk.Frame(self, bg=self.config.BG_COLOR)
         self.main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
@@ -64,7 +56,6 @@ class StockOverflowApp(tk.Tk):
         self.show_inventory()
     
     def create_navbar(self):
-        """Create the top navigation bar"""
         navbar = tk.Frame(self.main_frame, bg=self.config.BG_COLOR, bd=2, relief=tk.GROOVE)
         navbar.pack(fill=tk.X, pady=5)
         
@@ -72,14 +63,14 @@ class StockOverflowApp(tk.Tk):
         nav_buttons_frame = tk.Frame(navbar, bg=self.config.BG_COLOR)
         nav_buttons_frame.pack(fill=tk.X, padx=5, pady=5)
         
-        # Configure the grid to have 5 equal columns
-        for i in range(5):
+        # Configure the grid to have 4 equal columns
+        for i in range(4):
             nav_buttons_frame.columnconfigure(i, weight=1)
         
         # Custom button style with rounded corners and green outline for navigation buttons
         green_button_style = {
-            "bg": "white",
-            "fg": "black",
+            "bg": AppConfig.PRIMARY_COLOR,
+            "fg": "white",
             "font": self.button_font,
             "relief": tk.GROOVE,
             "bd": 2,
@@ -93,8 +84,8 @@ class StockOverflowApp(tk.Tk):
         
         # Red button style for Switch Profile
         red_button_style = {
-            "bg": "white",
-            "fg": "darkred",
+            "bg": AppConfig.SECONDARY_COLOR,
+            "fg": "white",
             "font": self.button_font,
             "relief": tk.GROOVE,
             "bd": 2,
@@ -133,14 +124,14 @@ class StockOverflowApp(tk.Tk):
         )
         self.orders_btn.grid(row=0, column=2, padx=5)
         
-        # Analytics button
-        self.analytics_btn = tk.Button(
-            nav_buttons_frame, 
-            text="Analytics",
-            command=self.show_analytics,
-            **green_button_style
-        )
-        self.analytics_btn.grid(row=0, column=3, padx=5)
+        # # Analytics button
+        # self.analytics_btn = tk.Button(
+        #     nav_buttons_frame, 
+        #     text="Analytics",
+        #     command=self.show_analytics,
+        #     **green_button_style
+        # )
+        # self.analytics_btn.grid(row=0, column=3, padx=5)
         
         # Profile button (Switch Profile) - with red outline
         self.profile_btn = tk.Button(
@@ -149,15 +140,13 @@ class StockOverflowApp(tk.Tk):
             command=self.switch_profile,
             **red_button_style
         )
-        self.profile_btn.grid(row=0, column=4, padx=5)
+        self.profile_btn.grid(row=0, column=3, padx=5)
     
     def clear_content(self):
-        """Clear the content area"""
         for widget in self.content_frame.winfo_children():
             widget.destroy()
     
     def show_inventory(self):
-        """Show the inventory page"""
         self.clear_content()
         inventory_page = InventoryPage(
             self.content_frame, 
@@ -171,7 +160,6 @@ class StockOverflowApp(tk.Tk):
         inventory_page.pack(fill=tk.BOTH, expand=True)
     
     def show_recipes(self):
-        """Show the recipes page"""
         self.clear_content()
         recipe_page = RecipePage(
             self.content_frame, 
@@ -185,7 +173,6 @@ class StockOverflowApp(tk.Tk):
         recipe_page.pack(fill=tk.BOTH, expand=True)
     
     def show_orders(self):
-        """Show the orders page"""
         self.clear_content()
         order_page = OrderPage(
             self.content_frame, 
@@ -198,22 +185,20 @@ class StockOverflowApp(tk.Tk):
         )
         order_page.pack(fill=tk.BOTH, expand=True)
     
-    def show_analytics(self):
-        """Show the analytics page"""
-        self.clear_content()
-        analytics_page = AnalyticsPage(
-            self.content_frame, 
-            self.db, 
-            self.config, 
-            self.current_user,
-            self.title_font,
-            self.header_font,
-            self.normal_font
-        )
-        analytics_page.pack(fill=tk.BOTH, expand=True)
+    # def show_analytics(self):
+    #     self.clear_content()
+    #     analytics_page = AnalyticsPage(
+    #         self.content_frame, 
+    #         self.db, 
+    #         self.config, 
+    #         self.current_user,
+    #         self.title_font,
+    #         self.header_font,
+    #         self.normal_font
+    #     )
+    #     analytics_page.pack(fill=tk.BOTH, expand=True)
     
     def switch_profile(self):
-        """Show the profile switching dialog"""
         # Create a dialog window
         dialog = tk.Toplevel(self)
         dialog.title("Switch User Profile")
@@ -275,17 +260,13 @@ class StockOverflowApp(tk.Tk):
         cancel_btn.pack(side=tk.RIGHT, padx=10)
     
     def change_user_profile(self, role, dialog):
-        """Change user profile"""
-        # Update current user
+
         self.current_user["role"] = role
         
-        # Show success message
         messagebox.showinfo("Profile Changed", f"User profile changed to: {role}")
         
-        # Close the dialog
         dialog.destroy()
         
-        # Refresh the current view
         if self.content_frame.winfo_children():
             current_page = self.content_frame.winfo_children()[0].winfo_children()[0].cget("text")
             if "Inventory" in current_page:
@@ -298,7 +279,6 @@ class StockOverflowApp(tk.Tk):
                 self.show_analytics()
     
     def center_window(self, window, width, height):
-        """Center a window on the screen"""
         # Get screen width and height
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()

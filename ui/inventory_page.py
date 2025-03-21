@@ -1,13 +1,8 @@
-"""
-Inventory management UI for StockOverflow
-"""
-
 import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime, timedelta
 
 class InventoryPage(tk.Frame):
-    """Inventory management page"""
     
     def __init__(self, parent, db, config, current_user, title_font, header_font, normal_font):
         super().__init__(parent, bg=config.BG_COLOR)
@@ -23,7 +18,6 @@ class InventoryPage(tk.Frame):
         self.create_ui()
         
     def create_ui(self):
-        """Create the inventory page UI"""
         # Create header
         header = tk.Frame(self, bg=self.config.BG_COLOR)
         header.pack(fill=tk.X, pady=5)
@@ -87,7 +81,6 @@ class InventoryPage(tk.Frame):
         self.load_inventory_data()
     
     def load_inventory_data(self):
-        """Load inventory data into the treeview"""
         # Clear existing items
         for i in self.inventory_tree.get_children():
             self.inventory_tree.delete(i)
@@ -128,7 +121,6 @@ class InventoryPage(tk.Frame):
         self.inventory_tree.tag_configure("expiring_soon", background="#FFCDD2")  # Light red
     
     def on_inventory_item_select(self, event):
-        """Handle inventory item selection (double-click)"""
         # Get the selected item
         selection = self.inventory_tree.selection()
         if not selection:
@@ -142,7 +134,6 @@ class InventoryPage(tk.Frame):
         self.show_item_details(item_id)
     
     def show_item_details(self, item_id):
-        """Show item details in a dialog"""
         # Get inventory data
         inventory = self.db.get_inventory()
         
@@ -243,7 +234,6 @@ class InventoryPage(tk.Frame):
             category_entry.configure(state="disabled")
     
     def save_item_changes(self, item_id, name, quantity, unit, expiry, category, dialog):
-        """Save item changes"""
         # Create updates dict
         updates = {
             "name": name,
@@ -265,7 +255,6 @@ class InventoryPage(tk.Frame):
             messagebox.showerror("Error", "Failed to update item")
     
     def delete_item(self, item_id, dialog):
-        """Delete an inventory item"""
         # Confirm deletion
         confirm = messagebox.askyesno("Confirm Deletion", "Are you sure you want to delete this item?")
         if not confirm:
@@ -283,7 +272,6 @@ class InventoryPage(tk.Frame):
             messagebox.showerror("Error", "Failed to delete item")
     
     def add_inventory_item(self):
-        """Add a new inventory item"""
         # Create a dialog window
         dialog = tk.Toplevel(self)
         dialog.title("Add New Inventory Item")
@@ -355,7 +343,6 @@ class InventoryPage(tk.Frame):
         cancel_btn.pack(side=tk.RIGHT, padx=5)
     
     def save_new_item(self, name, quantity, unit, expiry, category, dialog):
-        """Save a new inventory item"""
         # Validate inputs
         if not name or not quantity or not unit or not expiry or not category:
             messagebox.showerror("Error", "All fields are required")
@@ -388,7 +375,6 @@ class InventoryPage(tk.Frame):
             messagebox.showerror("Error", "Failed to add item")
     
     def center_window(self, window, width, height):
-        """Center a window on the screen"""
         # Get screen width and height
         screen_width = window.winfo_screenwidth()
         screen_height = window.winfo_screenheight()

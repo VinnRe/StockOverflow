@@ -1,13 +1,8 @@
-"""
-Order management UI for StockOverflow
-"""
-
 import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime
 
 class OrderPage(tk.Frame):
-    """Order management page"""
     
     def __init__(self, parent, db, config, current_user, title_font, header_font, normal_font):
         super().__init__(parent, bg=config.BG_COLOR)
@@ -23,7 +18,6 @@ class OrderPage(tk.Frame):
         self.create_ui()
         
     def create_ui(self):
-        """Create the order page UI"""
         # Create header
         header = tk.Frame(self, bg=self.config.BG_COLOR)
         header.pack(fill=tk.X, pady=5)
@@ -84,7 +78,6 @@ class OrderPage(tk.Frame):
         self.load_order_data()
     
     def load_order_data(self):
-        """Load order data into the treeview"""
         # Clear existing items
         for i in self.orders_tree.get_children():
             self.orders_tree.delete(i)
@@ -126,15 +119,10 @@ class OrderPage(tk.Frame):
         self.orders_tree.tag_configure("in_progress", background="#E3F2FD")  # Light blue
     
     def on_order_select(self, event):
-        """Handle order selection (double-click)"""
         # Get the selected item
         selection = self.orders_tree.selection()
         if not selection:
             return
-        
-        # Get the item values
-        item_values = self.orders_ 
-        return
         
         # Get the item values
         item_values = self.orders_tree.item(selection[0], "values")
@@ -144,7 +132,6 @@ class OrderPage(tk.Frame):
         self.show_order_details(order_id)
     
     def show_order_details(self, order_id):
-        """Show order details in a dialog"""
         # Get order data
         orders = self.db.get_orders()
         recipes = self.db.get_recipes()
@@ -258,7 +245,6 @@ class OrderPage(tk.Frame):
         close_btn.pack(side=tk.RIGHT, padx=5)
     
     def update_order_status(self, order_id, status, dialog):
-        """Update an order's status"""
         # Update the order
         success = self.db.update_order_status(order_id, status)
         
@@ -271,7 +257,6 @@ class OrderPage(tk.Frame):
             messagebox.showerror("Error", "Failed to update order status")
     
     def create_new_order(self):
-        """Create a new order"""
         # Create a dialog window
         dialog = tk.Toplevel(self)
         dialog.title("Create New Order")
@@ -355,7 +340,6 @@ class OrderPage(tk.Frame):
         cancel_btn.pack(side=tk.RIGHT, padx=5)
     
     def center_window(self, window, width, height):
-        """Center a window on the screen"""
         # Get screen width and height
         screen_width = window.winfo_screenwidth()
         screen_height = window.winfo_screenheight()

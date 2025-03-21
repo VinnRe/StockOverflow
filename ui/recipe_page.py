@@ -1,13 +1,8 @@
-"""
-Recipe management UI for StockOverflow
-"""
-
 import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime
 
 class RecipePage(tk.Frame):
-    """Recipe management page"""
     
     def __init__(self, parent, db, config, current_user, title_font, header_font, normal_font):
         super().__init__(parent, bg=config.BG_COLOR)
@@ -23,7 +18,6 @@ class RecipePage(tk.Frame):
         self.create_ui()
         
     def create_ui(self):
-        """Create the recipe page UI"""
         # Create header
         header = tk.Frame(self, bg=self.config.BG_COLOR)
         header.pack(fill=tk.X, pady=5)
@@ -83,7 +77,6 @@ class RecipePage(tk.Frame):
         self.load_recipe_data()
     
     def load_recipe_data(self):
-        """Load recipe data into the treeview"""
         # Clear existing items
         for i in self.recipes_tree.get_children():
             self.recipes_tree.delete(i)
@@ -105,7 +98,6 @@ class RecipePage(tk.Frame):
             self.recipes_tree.insert("", tk.END, values=recipe_values)
     
     def on_recipe_select(self, event):
-        """Handle recipe selection (double-click)"""
         # Get the selected item
         selection = self.recipes_tree.selection()
         if not selection:
@@ -119,7 +111,6 @@ class RecipePage(tk.Frame):
         self.show_recipe_details(recipe_id)
     
     def show_recipe_details(self, recipe_id):
-        """Show recipe details in a dialog"""
         # Get recipe data
         recipes = self.db.get_recipes()
         inventory = self.db.get_inventory()
@@ -237,7 +228,6 @@ class RecipePage(tk.Frame):
             cost_entry.configure(state="disabled")
     
     def save_recipe_changes(self, recipe_id, name, category, cost, dialog):
-        """Save recipe changes"""
         # Create updates dict
         updates = {
             "name": name,
@@ -257,7 +247,6 @@ class RecipePage(tk.Frame):
             messagebox.showerror("Error", "Failed to update recipe")
     
     def add_recipe(self):
-        """Add a new recipe"""
         # Create a dialog window
         dialog = tk.Toplevel(self)
         dialog.title("Add New Recipe")
@@ -312,7 +301,6 @@ class RecipePage(tk.Frame):
         cancel_btn.pack(side=tk.RIGHT, padx=5)
     
     def center_window(self, window, width, height):
-        """Center a window on the screen"""
         # Get screen width and height
         screen_width = window.winfo_screenwidth()
         screen_height = window.winfo_screenheight()
