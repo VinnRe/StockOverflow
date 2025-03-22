@@ -7,6 +7,8 @@ class AppConfig:
     PRIMARY_COLOR = "#2E7D32"  # Dark green
     SECONDARY_COLOR = "#C62828"  # Dark red
     BG_COLOR = "#F5F5F5"  # Light grey
+    LIGHTY_COLOR = "#f5f5d5" # Light Yellow
+    ORANGE_COLOR = "#FFA500" # Orange
     TEXT_COLOR = "#212121"  # Dark grey
     
     # App name
