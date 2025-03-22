@@ -12,6 +12,8 @@ from models.user import Admin
 class StockOverflowApp(tk.Tk):
     def __init__(self):
         super().__init__()
+
+        self.navbar = None
         
         # App configuration
         self.config = AppConfig()
@@ -49,10 +51,11 @@ class StockOverflowApp(tk.Tk):
         self.content_frame = tk.Frame(self.main_frame, bg=self.config.BG_COLOR, bd=2, relief=tk.GROOVE)
         self.content_frame.pack(fill=tk.BOTH, expand=True, pady=10)
         
-        # Default to showing inventory
-        self.show_inventory()
+        # Default to showing recipes
+        self.show_recipes()
     
     def create_navbar(self):
+
         navbar = tk.Frame(self.main_frame, bg=self.config.BG_COLOR, bd=2, relief=tk.GROOVE)
         navbar.pack(fill=tk.X, pady=5)
         
@@ -93,6 +96,15 @@ class StockOverflowApp(tk.Tk):
             "highlightcolor": "darkred",
             "highlightthickness": 2
         }
+
+        # Recipes button
+        self.recipes_btn = tk.Button(
+            nav_buttons_frame, 
+            text="Recipes",
+            command=self.show_recipes,
+            **green_button_style
+        )
+        self.recipes_btn.grid(row=0, column=0, padx=5)
         
         # Inventory button
         self.inventory_btn = tk.Button(
@@ -101,16 +113,7 @@ class StockOverflowApp(tk.Tk):
             command=self.show_inventory,
             **green_button_style
         )
-        self.inventory_btn.grid(row=0, column=0, padx=5)
-        
-        # Recipes button
-        self.recipes_btn = tk.Button(
-            nav_buttons_frame, 
-            text="Recipes",
-            command=self.show_recipes,
-            **green_button_style
-        )
-        self.recipes_btn.grid(row=0, column=1, padx=5)
+        self.inventory_btn.grid(row=0, column=1, padx=5)
         
         # Orders button
         self.orders_btn = tk.Button(
@@ -121,11 +124,11 @@ class StockOverflowApp(tk.Tk):
         )
         self.orders_btn.grid(row=0, column=2, padx=5)
 
+        button_text = "Logout" if self.current_user.get("role") == "Admin" else "Admin Access"
+        button_command = self.handle_logout if self.current_user.get("role") == "Admin" else self.switch_profile
+
         self.profile_btn = tk.Button(
-            nav_buttons_frame, 
-            text="Switch Profile",
-            command=self.switch_profile,
-            **red_button_style
+            nav_buttons_frame, text=button_text, command=button_command, **red_button_style
         )
         self.profile_btn.grid(row=0, column=3, padx=5)
     
@@ -187,106 +190,78 @@ class StockOverflowApp(tk.Tk):
         # Center the dialog on the screen
         self.center_window(dialog, 300, 250)
 
-        if self.current_user.get("role") == "Staff" or self.current_user.get("role") == None: 
-            # Add username label and entry field
-            tk.Label(
-                dialog,
-                text="Username:",
-                font=self.header_font,
-                bg=self.config.BG_COLOR,
-                fg=self.config.TEXT_COLOR
-            ).pack(pady=(10, 0))
-            
-            username_entry = tk.Entry(dialog)
-            username_entry.pack(pady=(0, 10))
-
-            # Add password label and entry field
-            tk.Label(
-                dialog,
-                text="Password:",
-                font=self.header_font,
-                bg=self.config.BG_COLOR,
-                fg=self.config.TEXT_COLOR
-            ).pack()
-            
-            password_entry = tk.Entry(dialog, show="*")
-            password_entry.pack(pady=(0, 10))
-
-            # Button frame
-            button_frame = tk.Frame(dialog, bg=self.config.BG_COLOR)
-            button_frame.pack(fill=tk.X, pady=20)
-
-            # Login button
-            login_btn = tk.Button(
-                button_frame, 
-                text="Login",
-                command=lambda: self.handle_login(username_entry.get(), password_entry.get(), dialog),
-                **self.config.BUTTON_STYLES["primary"]
-            )
-            login_btn.pack(side=tk.LEFT, padx=10)
-
-            # Cancel button
-            cancel_btn = tk.Button(
-                button_frame, 
-                text="Cancel",
-                command=dialog.destroy,
-                **self.config.BUTTON_STYLES["secondary"]
-            )
-            cancel_btn.pack(side=tk.RIGHT, padx=10)
-
+        # Add username label and entry field
+        tk.Label(
+            dialog,
+            text="Username:",
+            font=self.header_font,
+            bg=self.config.BG_COLOR,
+            fg=self.config.TEXT_COLOR
+        ).pack(pady=(10, 0))
         
+        username_entry = tk.Entry(dialog)
+        username_entry.pack(pady=(0, 10))
+
+        # Add password label and entry field
+        tk.Label(
+            dialog,
+            text="Password:",
+            font=self.header_font,
+            bg=self.config.BG_COLOR,
+            fg=self.config.TEXT_COLOR
+        ).pack()
+        
+        password_entry = tk.Entry(dialog, show="*")
+        password_entry.pack(pady=(0, 10))
+
         # Button frame
         button_frame = tk.Frame(dialog, bg=self.config.BG_COLOR)
         button_frame.pack(fill=tk.X, pady=20)
-        
-        # Logout button
-        if self.current_user.get("role") == "Admin":
-            logout_btn = tk.Button(
-                button_frame, 
-                text="Logout",
-                command=lambda: (self.handle_logout(), dialog.destroy()),
-                **self.config.BUTTON_STYLES["secondary"]
-            )
-            logout_btn.pack(side=tk.LEFT, padx=10)
 
+        # Login button
+        login_btn = tk.Button(
+            button_frame, 
+            text="Login",
+            command=lambda: self.handle_login(username_entry.get(), password_entry.get(), dialog),
+            **self.config.BUTTON_STYLES["primary"]
+        )
+        login_btn.pack(side=tk.LEFT, padx=10)
+
+        # Cancel button
+        cancel_btn = tk.Button(
+            button_frame, 
+            text="Cancel",
+            command=dialog.destroy,
+            **self.config.BUTTON_STYLES["secondary"]
+        )
+        cancel_btn.pack(side=tk.RIGHT, padx=10)
 
     def handle_login(self, username, password, dialog):
         if self.admin.login(username, password):
             messagebox.showinfo("Success", "Login successful!")
 
             self.current_user = {"username": username, "role": "Admin"}
-
             dialog.destroy()
+
+            # Update navbar button without recreating the whole navbar
+            self.profile_btn.config(text="Logout", command=self.handle_logout)
+
+            self.update_idletasks()
         else:
             messagebox.showwarning("Error", "Invalid username or password.")
-
 
     def handle_logout(self):
         if self.current_user.get("role") == "Admin":
             self.admin.logout()
             self.current_user = {"username": "staff", "role": "Staff"}
             messagebox.showinfo("Success", "Logged out successfully.")
+
+            # Update navbar button dynamically
+            self.profile_btn.config(text="Admin Access", command=self.switch_profile)
+
+            self.update_idletasks()
         else:
             messagebox.showwarning("Error", "You are not logged in.")
-
-    def change_user_profile(self, role, dialog):
-
-        self.current_user["role"] = role
-        
-        messagebox.showinfo("Profile Changed", f"User profile changed to: {role}")
-        
-        dialog.destroy()
-        
-        if self.content_frame.winfo_children():
-            current_page = self.content_frame.winfo_children()[0].winfo_children()[0].cget("text")
-            if "Inventory" in current_page:
-                self.show_inventory()
-            elif "Recipe" in current_page:
-                self.show_recipes()
-            elif "Order" in current_page:
-                self.show_orders()
-            elif "Analytics" in current_page:
-                self.show_analytics()
     
     def center_window(self, window, width, height):
         # Get screen width and height
