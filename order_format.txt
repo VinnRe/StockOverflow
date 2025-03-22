@@ -1,0 +1,23 @@
+def place_manual_order():
+    order_content = {"Tomatoes": 10}  # Example: User wants to order 10 Tomatoes
+    order = Order(order_content, "2025-03-22 14:00:00")  # Example date
+
+    order_controller.place_order(order)
+    print("Manual order placed!")
+
+def check_inventory():
+    order_controller.check_ingredients()  # This will auto reorder if needed
+    print("Inventory checked!")
+
+
+def fetch_orders():
+    orders = order_controller.get_all_orders()
+    print("\n📋 Orders in Database:")
+    for order_id, details in orders.items():
+        print(f"Order ID: {order_id}, Content: {details['order_content']}, Status: {details['order_status']}")
+
+
+def receive_order():
+    order_id = order_id_entry.get()  # Get Order ID from entry field
+    order_controller.receive_order(order_id)
+    print(f"Order {order_id} marked as received!")
