@@ -17,39 +17,31 @@ class FoodInventory:
             return []
         
         inventory_list = []
-        items_near_expiry_date = []
-        item_low_stock = []
 
         for item_id, item_data in items.items():
-            inventory_list.append({item_id: item_data})
-
+            is_low = False
+            near_expiry = False
+            
+            # near expiry date
             expiry_date_str = item_data.get("stock")
             if expiry_date_str:
                 cur_item = {}
                 for item_expiry_date, item_quantity in expiry_date_str.items():
                     expiry_date = datetime.strptime(item_expiry_date, "%Y-%m-%d").date()
                     if expiry_date < warning_date:
-                        if not cur_item.get(item_id):
-                            cur_item[item_id] = {
-                                'itemName': item_data['itemName'],
-                                'stock': {item_expiry_date: item_quantity}
-                            }
-                        else:
-                            cur_item[item_id]['stock'][item_expiry_date] = item_quantity
-                if cur_item != {}:
-                    items_near_expiry_date.append(cur_item)
+                        near_expiry = True
 
+            # check if item quanitity is low
             item_stock = item_data.get("totalQuantity")
             if item_stock < 20:
-                item_low_stock.append({item_id: item_data})
+                is_low = True
 
-        res = {
-            "inventory_list": inventory_list,
-            "items_near_expiry_date": items_near_expiry_date,
-            "item_low_stock": item_low_stock
-        }
+            item_data["is_low"] = is_low
+            item_data["near_expiry"] = near_expiry
 
-        return res
+            inventory_list.append({item_id: item_data})
+
+        return inventory_list
 
     def searchItemById(self, itemId):
         """Search for an item by its Firebase ID."""

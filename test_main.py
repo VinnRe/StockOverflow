@@ -30,18 +30,18 @@ def main():
         choice = input("Enter your choice: ")
 
         if choice == "1":
-            result = inventory.displayItems()
+            items = inventory.displayItems()
             print("\nInventory Items:")
-            for item in result['inventory_list']:
+            for item in items:
                 print(item)
 
-            print("\nNear Expiry Date:")
-            for item in result['items_near_expiry_date']:
-                print(item)
+            # print("\nNear Expiry Date:")
+            # for item in result['items_near_expiry_date']:
+            #     print(item)
 
-            print("\nLow Stocks:")
-            for item in result['item_low_stock']:
-                print(item)
+            # print("\nLow Stocks:")
+            # for item in result['item_low_stock']:
+            #     print(item)
 
         elif choice == "2":
             item_id = input("\nEnter Item ID: ")
