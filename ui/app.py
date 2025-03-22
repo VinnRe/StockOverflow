@@ -2,8 +2,12 @@ import tkinter as tk
 from tkinter import ttk, messagebox, font
 from datetime import datetime, timedelta
 
+import firebase_admin
+from firebase_admin import credentials, db
+import os
+from dotenv import load_dotenv
+
 from config.app_config import AppConfig
-from models.database import Database
 from ui.inventory_page import InventoryPage
 from ui.recipe_page import RecipePage
 from ui.order_page import OrderPage
@@ -19,8 +23,14 @@ class StockOverflowApp(tk.Tk):
         self.config = AppConfig()
         
         # Database connection
-        self.db = Database()
-        
+        # Load environment variables
+        load_dotenv()
+        DB_URL = os.getenv("DB_URL")
+
+        # Initialize Firebase Admin SDK (Make sure your .env has DB_URL set)
+        cred = credentials.Certificate("key.json")  # Update path
+        db = firebase_admin.initialize_app(cred, {"databaseURL": DB_URL})
+
         # Main app setup
         self.title(self.config.APP_NAME)
         self.geometry("900x700")
@@ -140,7 +150,7 @@ class StockOverflowApp(tk.Tk):
         self.clear_content()
         inventory_page = InventoryPage(
             self.content_frame, 
-            self.db, 
+            db, 
             self.config, 
             self.current_user,
             self.title_font,
@@ -153,7 +163,7 @@ class StockOverflowApp(tk.Tk):
         self.clear_content()
         recipe_page = RecipePage(
             self.content_frame, 
-            self.db, 
+            "test", 
             self.config, 
             self.current_user,
             self.title_font,
@@ -166,7 +176,7 @@ class StockOverflowApp(tk.Tk):
         self.clear_content()
         order_page = OrderPage(
             self.content_frame, 
-            self.db, 
+            "test", 
             self.config, 
             self.current_user,
             self.title_font,
@@ -178,8 +188,8 @@ class StockOverflowApp(tk.Tk):
     def switch_profile(self):
         # Create a dialog window
         dialog = tk.Toplevel(self)
-        dialog.title("Switch User Profile")
-        dialog.geometry("300x250")  # Increased height to accommodate login fields
+        dialog.title("Admin Access")
+        dialog.geometry("300x250")
         dialog.configure(bg=self.config.BG_COLOR)
         dialog.transient(self)
         dialog.grab_set()
