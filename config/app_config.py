@@ -29,9 +29,9 @@ class AppConfig:
             "activeforeground": "white",
             "relief": "raised",
             "border": 0,
-            "padx": 10,
-            "pady": 5,
-            "font": ("Helvetica", 10, "bold")
+            "padx": 15,
+            "pady": 10,
+            "font": ("Helvetica", 12, "bold")
         },
         "secondary": {
             "bg": SECONDARY_COLOR,
@@ -40,8 +40,8 @@ class AppConfig:
             "activeforeground": "white",
             "relief": "raised",
             "border": 0,
-            "padx": 10,
-            "pady": 5,
-            "font": ("Helvetica", 10, "bold")
+            "padx": 15,
+            "pady": 10,
+            "font": ("Helvetica", 12, "bold")
         }
     }
