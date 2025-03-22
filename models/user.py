@@ -1,4 +1,4 @@
-from controllers.auth import AuthController
+from controllers.auth_controller import AuthController
 
 class Admin:
     def __init__(self):
