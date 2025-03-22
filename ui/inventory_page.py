@@ -51,12 +51,15 @@ class InventoryPage(tk.Frame):
         # Table frame
         table_frame = tk.Frame(self, bg=self.config.BG_COLOR)
         table_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        # Sorting state tracker
+        self.sort_order = {"itemName": False, "stock": False, "totalQuantity": False}
         
         # Create table
         self.tree = ttk.Treeview(table_frame, columns=("itemName", "stock", "totalQuantity"), show='headings')
-        self.tree.heading("itemName", text="Item Name")
-        self.tree.heading("stock", text="Expiry Date")
-        self.tree.heading("totalQuantity", text="Quantity")
+        self.tree.heading("itemName", text="Item Name ▼", command=lambda: self.on_column_click("itemName"))
+        self.tree.heading("stock", text="Expiry Date", command=lambda: self.on_column_click("stock"))
+        self.tree.heading("totalQuantity", text="Quantity", command=lambda: self.on_column_click("totalQuantity"))
         
         self.tree.column("itemName", width=150, anchor="center")
         self.tree.column("stock", width=200, anchor="center")
@@ -252,3 +255,22 @@ class InventoryPage(tk.Frame):
         
         # Set the position
         window.geometry(f"{width}x{height}+{x}+{y}")
+
+
+    def on_column_click(self, column_name):
+        """Change the column header title when clicked and toggle sorting order."""
+
+        # Toggle sort order
+        self.sort_order[column_name] = not self.sort_order[column_name]
+        order_symbol = "▲" if self.sort_order[column_name] else "▼"
+
+        # Reset all headers and update the clicked one
+        self.tree.heading("itemName", text="Item Name")
+        self.tree.heading("stock", text="Expiry Date")
+        self.tree.heading("totalQuantity", text="Quantity")
+
+        self.tree.heading(column_name, text=f"{column_name.replace('itemName', 'Item Name').replace('stock', 'Expiry Date').replace('totalQuantity', 'Quantity')} {order_symbol}")
+
+        # print(self.sort_order)
+        self.inventory_data = FoodInventory().displayItems(column_name, self.sort_order[column_name])
+        self.load_inventory_data()
