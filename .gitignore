@@ -172,3 +172,11 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+
+key.json
+test_auto.py
+test_auth.py
+test_order_receive.py
+test_orders.py
+test_staff.py

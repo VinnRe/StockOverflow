@@ -1,9 +1,13 @@
 import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class AuthController:
     def __init__(self):
         self.admin = None
-        self.db_url = "https://stockoverflow-b4e38-default-rtdb.firebaseio.com/user.json"  # Firebase URL
+        self.db_url = os.getenv("DB_URL") + "/user.json"
 
     def get_admin_credentials(self):
         response = requests.get(self.db_url)
