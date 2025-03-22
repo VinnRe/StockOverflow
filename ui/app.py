@@ -42,12 +42,17 @@ class StockOverflowApp(tk.Tk):
         # Initialize UI components
         self.create_custom_fonts()
         self.create_ui()
+
+        # Define style
+        style = ttk.Style()
+        style.configure("Treeview", font=("Helvetica", 12))
+        style.configure("Treeview.Heading", font=("Helvetica", 16, "bold"))
         
     def create_custom_fonts(self):
-        self.title_font = font.Font(family="Helvetica", size=16, weight="bold")
-        self.header_font = font.Font(family="Helvetica", size=14, weight="bold")
-        self.normal_font = font.Font(family="Helvetica", size=10)
-        self.button_font = font.Font(family="Helvetica", size=10, weight="bold")
+        self.title_font = font.Font(family="Helvetica", size=30, weight="bold")
+        self.header_font = font.Font(family="Helvetica", size=28, weight="bold")
+        self.normal_font = font.Font(family="Helvetica", size=20)
+        self.button_font = font.Font(family="Helvetica", size=20, weight="bold")
     
     def create_ui(self):
         # Create main container frame
