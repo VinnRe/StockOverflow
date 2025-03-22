@@ -15,7 +15,7 @@ class InventoryPage(tk.Frame):
         self.header_font = header_font
         self.normal_font = normal_font
         
-        self.inventory_data = FoodInventory().displayItems().get("inventory_list", [])
+        self.inventory_data = FoodInventory().displayItems()
 
         # Create UI components
         self.create_ui()
@@ -71,16 +71,33 @@ class InventoryPage(tk.Frame):
         for row in self.tree.get_children():
             self.tree.delete(row)
 
+        # Configure tags for styling
+        self.tree.tag_configure("low_stock", background=self.config.LIGHTY_COLOR, foreground="white")
+        self.tree.tag_configure("near_expiry", background=self.config.ORANGE_COLOR, foreground="black")
+        self.tree.tag_configure("low_and_near", background=self.config.SECONDARY_COLOR, foreground="black")
+
         if self.inventory_data:
             for item_dict in self.inventory_data:
                 for item_id, item_details in item_dict.items():
                     item_name = item_details.get("itemName", "N/A")
                     stock = item_details.get("stock", {})
                     total_quantity = item_details.get("totalQuantity", "0")
+                    is_low = item_details.get("is_low", False)  # Get the is_low attribute
+                    near_expiry = item_details.get("near_expiry", False)  # Get the near_expiry attribute
 
                     expiry_dates = ", ".join(stock.keys()) if stock else "N/A"
 
-                    self.tree.insert("", "end", values=(item_name, expiry_dates, total_quantity))
+                    # Determine the tag based on conditions
+                    if is_low and near_expiry:
+                        tag = "low_and_near"  # Both conditions apply
+                    elif is_low:
+                        tag = "low_stock"  # Only low stock
+                    elif near_expiry:
+                        tag = "near_expiry"  # Only near expiry
+                    else:
+                        tag = ""
+
+                    self.tree.insert("", "end", values=(item_name, expiry_dates, total_quantity), tags=(tag,))
         else:
             print("No inventory data found.")
 
