@@ -1,4 +1,5 @@
 from firebase_admin import db
+from datetime import datetime, timedelta
 
 class FoodInventory:
     def __init__(self):
@@ -7,14 +8,45 @@ class FoodInventory:
 
     def displayItems(self):
         """Retrieve and display all inventory items."""
+        current_date = datetime.now().date()
+        warning_date = current_date + timedelta(days=7)
+
         items = self.items_ref.get()
         if not items:
             print("No items found in inventory.")
             return []
         
         inventory_list = []
+        items_near_expiry_date = {}
+        item_low_stock = []
+
         for item_id, item_data in items.items():
             inventory_list.append({item_id: item_data})
+
+            expiry_date_str = item_data.get("stock")
+            if expiry_date_str:
+                for item_expiry_date, item_quantity in expiry_date_str.items():
+                    print(item_expiry_date)
+                    expiry_date = datetime.strptime(item_expiry_date, "%Y-%m-%d").date()
+                    if expiry_date < warning_date:
+                        print(items_near_expiry_date.get(item_id))
+                        if not items_near_expiry_date.get(item_id):
+                            items_near_expiry_date[item_id] = {
+                                'itemName': item_data['itemName'],
+                                'stock': {item_expiry_date: item_quantity}
+                            }
+                        else:
+                            items_near_expiry_date[item_id]['stock'][item_expiry_date] = item_quantity
+
+            item_stock = item_data.get("totalQuantity")
+            if item_stock < 20:
+                item_low_stock.append({item_id: item_data})
+
+        print(f"inventory_list: {inventory_list}")
+        print()
+        print(f"items_near_expiry_date: {items_near_expiry_date}")
+        print()
+        print(f"item_low_stock: {item_low_stock}")
         
         return inventory_list
 
