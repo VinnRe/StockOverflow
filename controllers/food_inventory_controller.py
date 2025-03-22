@@ -17,7 +17,7 @@ class FoodInventory:
             return []
         
         inventory_list = []
-        items_near_expiry_date = {}
+        items_near_expiry_date = []
         item_low_stock = []
 
         for item_id, item_data in items.items():
@@ -25,30 +25,31 @@ class FoodInventory:
 
             expiry_date_str = item_data.get("stock")
             if expiry_date_str:
+                cur_item = {}
                 for item_expiry_date, item_quantity in expiry_date_str.items():
-                    print(item_expiry_date)
                     expiry_date = datetime.strptime(item_expiry_date, "%Y-%m-%d").date()
                     if expiry_date < warning_date:
-                        print(items_near_expiry_date.get(item_id))
-                        if not items_near_expiry_date.get(item_id):
-                            items_near_expiry_date[item_id] = {
+                        if not cur_item.get(item_id):
+                            cur_item[item_id] = {
                                 'itemName': item_data['itemName'],
                                 'stock': {item_expiry_date: item_quantity}
                             }
                         else:
-                            items_near_expiry_date[item_id]['stock'][item_expiry_date] = item_quantity
+                            cur_item[item_id]['stock'][item_expiry_date] = item_quantity
+                if cur_item != {}:
+                    items_near_expiry_date.append(cur_item)
 
             item_stock = item_data.get("totalQuantity")
             if item_stock < 20:
                 item_low_stock.append({item_id: item_data})
 
-        print(f"inventory_list: {inventory_list}")
-        print()
-        print(f"items_near_expiry_date: {items_near_expiry_date}")
-        print()
-        print(f"item_low_stock: {item_low_stock}")
-        
-        return inventory_list
+        res = {
+            "inventory_list": inventory_list,
+            "items_near_expiry_date": items_near_expiry_date,
+            "item_low_stock": item_low_stock
+        }
+
+        return res
 
     def searchItemById(self, itemId):
         """Search for an item by its Firebase ID."""
