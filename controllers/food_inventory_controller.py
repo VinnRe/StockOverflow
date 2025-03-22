@@ -6,7 +6,7 @@ class FoodInventory:
         self.ref = db.reference('db')
         self.items_ref = self.ref.child('inventory')
 
-    def displayItems(self):
+    def displayItems(self, sortBy="itemName", isReversed=False):
         """Retrieve and display all inventory items."""
         current_date = datetime.now().date()
         warning_date = current_date + timedelta(days=7)
@@ -40,6 +40,16 @@ class FoodInventory:
             item_data["near_expiry"] = near_expiry
 
             inventory_list.append({item_id: item_data})
+
+        if sortBy == "itemName":
+            inventory_list = sorted(inventory_list, key=lambda x: list(x.values())[0]["itemName"])
+        elif sortBy == "stock":
+            inventory_list = sorted(inventory_list, key=lambda x: min(list(x.values())[0]["stock"].keys()))
+        elif sortBy == "totalQuantity":
+            inventory_list = sorted(inventory_list, key=lambda x: list(x.values())[0]["totalQuantity"])
+
+        if isReversed:
+                inventory_list.reverse()
 
         return inventory_list
 
