@@ -1,4 +1,5 @@
 from firebase_admin import db
+from datetime import datetime, timedelta
 
 class FoodInventory:
     def __init__(self):
@@ -7,16 +8,48 @@ class FoodInventory:
 
     def displayItems(self):
         """Retrieve and display all inventory items."""
+        current_date = datetime.now().date()
+        warning_date = current_date + timedelta(days=7)
+
         items = self.items_ref.get()
         if not items:
             print("No items found in inventory.")
             return []
         
         inventory_list = []
+        items_near_expiry_date = []
+        item_low_stock = []
+
         for item_id, item_data in items.items():
             inventory_list.append({item_id: item_data})
-        
-        return inventory_list
+
+            expiry_date_str = item_data.get("stock")
+            if expiry_date_str:
+                cur_item = {}
+                for item_expiry_date, item_quantity in expiry_date_str.items():
+                    expiry_date = datetime.strptime(item_expiry_date, "%Y-%m-%d").date()
+                    if expiry_date < warning_date:
+                        if not cur_item.get(item_id):
+                            cur_item[item_id] = {
+                                'itemName': item_data['itemName'],
+                                'stock': {item_expiry_date: item_quantity}
+                            }
+                        else:
+                            cur_item[item_id]['stock'][item_expiry_date] = item_quantity
+                if cur_item != {}:
+                    items_near_expiry_date.append(cur_item)
+
+            item_stock = item_data.get("totalQuantity")
+            if item_stock < 20:
+                item_low_stock.append({item_id: item_data})
+
+        res = {
+            "inventory_list": inventory_list,
+            "items_near_expiry_date": items_near_expiry_date,
+            "item_low_stock": item_low_stock
+        }
+
+        return res
 
     def searchItemById(self, itemId):
         """Search for an item by its Firebase ID."""
