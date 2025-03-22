@@ -110,10 +110,16 @@ class OrderPage(tk.Frame):
             print(f"Order ID: {order_id}, Date: {order_date}, Items: {formatted_content}, Status: {order_status}")
 
     def on_row_selected(self, event):
-        """Enable the Receive Order button only if a row is selected."""
+        """Enable the Receive Order button only if a row is selected and not received."""
         selected_item = self.orders_tree.selection()
+        
         if selected_item:
-            self.receive_btn.config(state=tk.NORMAL)
+            order_status = self.orders_tree.item(selected_item, "values")[3]  # Get the status column value
+            
+            if order_status == "Received":
+                self.receive_btn.config(state=tk.DISABLED)
+            else:
+                self.receive_btn.config(state=tk.NORMAL)
         else:
             self.receive_btn.config(state=tk.DISABLED)
 
