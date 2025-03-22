@@ -70,20 +70,16 @@ class StockOverflowApp(tk.Tk):
         self.show_recipes()
     
     def create_navbar(self):
-
         navbar = tk.Frame(self.main_frame, bg=self.config.BG_COLOR, bd=2, relief=tk.GROOVE)
         navbar.pack(fill=tk.X, pady=5)
         
-        # Create a frame for the navigation buttons to ensure even spacing
         nav_buttons_frame = tk.Frame(navbar, bg=self.config.BG_COLOR)
         nav_buttons_frame.pack(fill=tk.X, padx=5, pady=5)
         
-        # Configure the grid to have 4 equal columns
         for i in range(4):
             nav_buttons_frame.columnconfigure(i, weight=1)
         
-        # Custom button style with rounded corners and green outline for navigation buttons
-        green_button_style = {
+        self.green_button_style = {
             "bg": AppConfig.PRIMARY_COLOR,
             "fg": "white",
             "font": self.button_font,
@@ -97,8 +93,7 @@ class StockOverflowApp(tk.Tk):
             "highlightthickness": 2
         }
         
-        # Red button style for Switch Profile
-        red_button_style = {
+        self.red_button_style = {
             "bg": AppConfig.SECONDARY_COLOR,
             "fg": "white",
             "font": self.button_font,
@@ -112,41 +107,99 @@ class StockOverflowApp(tk.Tk):
             "highlightthickness": 2
         }
 
-        # Recipes button
         self.recipes_btn = tk.Button(
             nav_buttons_frame, 
             text="Recipes",
             command=self.show_recipes,
-            **green_button_style
+            **self.green_button_style
         )
         self.recipes_btn.grid(row=0, column=0, padx=5)
-        
-        # Inventory button
-        self.inventory_btn = tk.Button(
-            nav_buttons_frame, 
-            text="Inventory",
-            command=self.show_inventory,
-            **green_button_style
-        )
-        self.inventory_btn.grid(row=0, column=1, padx=5)
-        
-        # Orders button
-        self.orders_btn = tk.Button(
-            nav_buttons_frame, 
-            text="Orders",
-            command=self.show_orders,
-            **green_button_style
-        )
-        self.orders_btn.grid(row=0, column=2, padx=5)
+
+        # Initialize inventory and orders buttons as None
+        self.inventory_btn = None
+        self.orders_btn = None
+
+        # Conditionally create the inventory and orders buttons
+        if self.current_user.get("role") == "Admin":
+            self.inventory_btn = tk.Button(
+                nav_buttons_frame, 
+                text="Inventory",
+                command=self.show_inventory,
+                **self.green_button_style
+            )
+            self.inventory_btn.grid(row=0, column=1, padx=5)
+
+            self.orders_btn = tk.Button(
+                nav_buttons_frame, 
+                text="Orders",
+                command=self.show_orders,
+                **self.green_button_style
+            )
+            self.orders_btn.grid(row=0, column=2, padx=5)
 
         button_text = "Logout" if self.current_user.get("role") == "Admin" else "Admin Access"
         button_command = self.handle_logout if self.current_user.get("role") == "Admin" else self.switch_profile
 
         self.profile_btn = tk.Button(
-            nav_buttons_frame, text=button_text, command=button_command, **red_button_style
+            nav_buttons_frame, text=button_text, command=button_command, **self.red_button_style
         )
         self.profile_btn.grid(row=0, column=3, padx=5)
-    
+
+    def handle_login(self, username, password, dialog):
+        if self.admin.login(username, password):
+            messagebox.showinfo("Success", "Login successful!")
+
+            self.current_user = {"username": username, "role": "Admin"}
+            dialog.destroy()
+
+            # Update navbar button without recreating the whole navbar
+            self.profile_btn.config(text="Logout", command=self.handle_logout)
+
+            # Add Inventory and Orders buttons if they don't exist
+            if not self.inventory_btn:
+                nav_buttons_frame = self.profile_btn.master #get the parent frame of profile_btn
+                self.inventory_btn = tk.Button(
+                    nav_buttons_frame, 
+                    text="Inventory",
+                    command=self.show_inventory,
+                    **self.green_button_style
+                )
+                self.inventory_btn.grid(row=0, column=1, padx=5)
+
+            if not self.orders_btn:
+                nav_buttons_frame = self.profile_btn.master
+                self.orders_btn = tk.Button(
+                    nav_buttons_frame, 
+                    text="Orders",
+                    command=self.show_orders,
+                    **self.green_button_style
+                )
+                self.orders_btn.grid(row=0, column=2, padx=5)
+
+            self.update_idletasks()
+        else:
+            messagebox.showwarning("Error", "Invalid username or password.")
+
+    def handle_logout(self):
+        if self.current_user.get("role") == "Admin":
+            self.admin.logout()
+            self.current_user = {"username": "staff", "role": "Staff"}
+            messagebox.showinfo("Success", "Logged out successfully.")
+
+            self.profile_btn.config(text="Admin Access", command=self.switch_profile)
+
+            # Remove Inventory and Orders buttons if they exist
+            if self.inventory_btn:
+                self.inventory_btn.grid_forget()
+            if self.orders_btn:
+                self.orders_btn.grid_forget()
+
+            self.show_recipes()
+
+            self.update_idletasks()
+        else:
+            messagebox.showwarning("Error", "You are not logged in.")
+
     def clear_content(self):
         for widget in self.content_frame.winfo_children():
             widget.destroy()
@@ -209,7 +262,7 @@ class StockOverflowApp(tk.Tk):
         tk.Label(
             dialog,
             text="Username:",
-            font=self.header_font,
+            font=self.normal_font,
             bg=self.config.BG_COLOR,
             fg=self.config.TEXT_COLOR
         ).pack(pady=(10, 0))
@@ -221,7 +274,7 @@ class StockOverflowApp(tk.Tk):
         tk.Label(
             dialog,
             text="Password:",
-            font=self.header_font,
+            font=self.normal_font,
             bg=self.config.BG_COLOR,
             fg=self.config.TEXT_COLOR
         ).pack()
@@ -250,33 +303,6 @@ class StockOverflowApp(tk.Tk):
             **self.config.BUTTON_STYLES["secondary"]
         )
         cancel_btn.pack(side=tk.RIGHT, padx=10)
-
-    def handle_login(self, username, password, dialog):
-        if self.admin.login(username, password):
-            messagebox.showinfo("Success", "Login successful!")
-
-            self.current_user = {"username": username, "role": "Admin"}
-            dialog.destroy()
-
-            # Update navbar button without recreating the whole navbar
-            self.profile_btn.config(text="Logout", command=self.handle_logout)
-
-            self.update_idletasks()
-        else:
-            messagebox.showwarning("Error", "Invalid username or password.")
-
-    def handle_logout(self):
-        if self.current_user.get("role") == "Admin":
-            self.admin.logout()
-            self.current_user = {"username": "staff", "role": "Staff"}
-            messagebox.showinfo("Success", "Logged out successfully.")
-
-            # Update navbar button dynamically
-            self.profile_btn.config(text="Admin Access", command=self.switch_profile)
-
-            self.update_idletasks()
-        else:
-            messagebox.showwarning("Error", "You are not logged in.")
     
     def center_window(self, window, width, height):
         # Get screen width and height
