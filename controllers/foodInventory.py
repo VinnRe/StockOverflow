@@ -46,5 +46,5 @@ class FoodInventory:
 	def updateItem(self, itemId, item):
 		self.items_ref.child(itemId).update(item)
 
-	def removeItem(self, itemId):
+	def deleteItem(self, itemId):
 		self.items_ref.child(itemId).delete()
