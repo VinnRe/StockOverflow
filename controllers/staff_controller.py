@@ -39,8 +39,10 @@ class StaffController:
             return []
 
     def orderRecipe(self, recipeId):
-        """Order a recipe by checking inventory and updating stock."""
+        """Order a recipe by checking inventory, validating expiration dates, and updating stock."""
         try:
+            import datetime
+            
             recipe = self.recipes_ref.child(recipeId).get()
             if not recipe:
                 print(f"No recipe found with ID: {recipeId}")
@@ -60,10 +62,16 @@ class StaffController:
                         print(f"Not enough {itemName} in stock.")
                         return False
                     
-                    # Deduct stock based on expiry date order
+                    # Deduct stock based on expiry date order, ignoring expired items
                     sorted_stock = sorted(stock.items(), key=lambda x: x[0])
                     deducted = 0
+                    today = datetime.date.today().isoformat()
+                    
                     for expiryDate, quantity in sorted_stock:
+                        if expiryDate < today:
+                            print(f"Skipping expired {itemName} (expiry: {expiryDate})")
+                            continue
+                        
                         if deducted >= requiredQty:
                             break
                         toDeduct = min(requiredQty - deducted, quantity)
@@ -71,6 +79,10 @@ class StaffController:
                         deducted += toDeduct
                         if stock[expiryDate] == 0:
                             del stock[expiryDate]
+                    
+                    if deducted < requiredQty:
+                        print(f"Not enough non-expired {itemName} in stock.")
+                        return False
                     
                     # Update Firebase
                     totalQuantity -= requiredQty
