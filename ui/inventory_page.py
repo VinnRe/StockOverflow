@@ -15,7 +15,7 @@ class InventoryPage(tk.Frame):
         self.header_font = header_font
         self.normal_font = normal_font
         
-        self.inventory_data = FoodInventory().displayItems()
+        self.inventory_data = FoodInventory().displayItems().get("inventory_list", [])
 
         # Create UI components
         self.create_ui()
@@ -184,10 +184,6 @@ class InventoryPage(tk.Frame):
         item_name_entry = tk.Entry(dialog)
         item_name_entry.pack(pady=2)
 
-        tk.Label(dialog, text="Received Date (YYYY-MM-DD):").pack(pady=2)
-        received_date_entry = tk.Entry(dialog)
-        received_date_entry.pack(pady=2)
-
         tk.Label(dialog, text="Expiry Date (YYYY-MM-DD):").pack(pady=2)
         expiry_date_entry = tk.Entry(dialog)
         expiry_date_entry.pack(pady=2)
@@ -198,16 +194,14 @@ class InventoryPage(tk.Frame):
 
         def submit():
             item_name = item_name_entry.get()
-            received_date = received_date_entry.get()
             expiry_date = expiry_date_entry.get()
             stock_quantity = stock_quantity_entry.get()
 
-            if not item_name or not received_date or not expiry_date or not stock_quantity.isdigit():
+            if not item_name or not expiry_date or not stock_quantity.isdigit():
                 messagebox.showerror("Error", "Please enter valid values!")
                 return
 
             try:
-                datetime.strptime(received_date, "%Y-%m-%d")
                 datetime.strptime(expiry_date, "%Y-%m-%d")
             except ValueError:
                 messagebox.showerror("Error", "Invalid date format! Use YYYY-MM-DD.")
@@ -215,11 +209,9 @@ class InventoryPage(tk.Frame):
 
             stock_quantity = int(stock_quantity)
 
-            date_combined = f"{received_date}, {expiry_date}"
-
             new_item = {
                 "itemName": item_name,
-                "stock": {date_combined: stock_quantity},
+                "stock": {expiry_date: stock_quantity},
                 "totalQuantity": stock_quantity
             }
             FoodInventory().createItem(new_item)
