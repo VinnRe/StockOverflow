@@ -292,17 +292,6 @@ class DashboardPage(tk.Frame):
                     canvas.draw()
                     canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
             
-            # Add button to view inventory
-            button_frame = tk.Frame(self.inventory_card, bg="white")
-            button_frame.pack(fill=tk.X, padx=5, pady=15)
-            
-            tk.Button(
-                button_frame,
-                text="View Inventory",
-                command=lambda: self.master.master.master.show_inventory(),
-                **self.config.BUTTON_STYLES["primary"]
-            ).pack(side=tk.LEFT)
-            
         except Exception as e:
             tk.Label(
                 self.inventory_card,
@@ -452,17 +441,6 @@ class DashboardPage(tk.Frame):
                     font=("Helvetica", 11),
                     bg="white"
                 ).pack(anchor="w", pady=5)
-            
-            # Add button to view recipes
-            button_frame = tk.Frame(self.recipe_card, bg="white")
-            button_frame.pack(fill=tk.X, padx=5, pady=15)
-            
-            tk.Button(
-                button_frame,
-                text="View Recipes",
-                command=lambda: self.master.master.master.show_recipes(),
-                **self.config.BUTTON_STYLES["primary"]
-            ).pack(side=tk.LEFT)
             
         except Exception as e:
             tk.Label(
@@ -655,16 +633,6 @@ class DashboardPage(tk.Frame):
                     bg="white"
                 ).pack(anchor="w", padx=10, pady=5)
             
-            # Add button to view orders
-            button_frame = tk.Frame(self.order_card, bg="white")
-            button_frame.pack(fill=tk.X, padx=5, pady=15)
-            
-            tk.Button(
-                button_frame,
-                text="View Orders",
-                command=lambda: self.master.master.master.show_orders(),
-                **self.config.BUTTON_STYLES["primary"]
-            ).pack(side=tk.LEFT)
             
         except Exception as e:
             tk.Label(
