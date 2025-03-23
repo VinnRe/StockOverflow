@@ -26,7 +26,7 @@ class InventoryPage(tk.Frame):
     def create_ui(self):
         # Create header
         header = tk.Frame(self, bg=self.config.BG_COLOR)
-        header.pack(fill=tk.X, pady=5)
+        header.pack(fill=tk.X, pady=10)
         
         # Title
         title_label = tk.Label(
@@ -36,7 +36,7 @@ class InventoryPage(tk.Frame):
             bg=self.config.BG_COLOR,
             fg=self.config.TEXT_COLOR
         )
-        title_label.pack(side=tk.LEFT, padx=5)
+        title_label.pack(side=tk.LEFT, padx=15)
         
         # Add item button (only for Admin)
         if self.current_user["role"] == "Admin":
@@ -46,16 +46,23 @@ class InventoryPage(tk.Frame):
                 command=self.add_inventory_item,
                 **self.config.BUTTON_STYLES["primary"]
             )
-            add_btn.pack(side=tk.RIGHT, padx=5)
+            add_btn.pack(side=tk.RIGHT, padx=15)
+        
+        # Add legend frame
+        self.create_legend()
         
         # Table frame
         table_frame = tk.Frame(self, bg=self.config.BG_COLOR)
-        table_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        table_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=10)
 
         # Sorting state tracker
         self.sort_order = {"itemName": False, "stock": False, "totalQuantity": False}
         
-        # Create table
+        # Create table with improved styling
+        style = ttk.Style()
+        style.configure("Treeview", rowheight=25)
+        style.configure("Treeview.Heading", font=("Helvetica", 12, "bold"))
+        
         self.tree = ttk.Treeview(table_frame, columns=("itemName", "stock", "totalQuantity"), show='headings')
         self.tree.heading("itemName", text="Item Name ▼", command=lambda: self.on_column_click("itemName"))
         self.tree.heading("stock", text="Expiry Date", command=lambda: self.on_column_click("stock"))
@@ -65,10 +72,72 @@ class InventoryPage(tk.Frame):
         self.tree.column("stock", width=200, anchor="center")
         self.tree.column("totalQuantity", width=80, anchor="center")
         
+        # Add scrollbar
+        scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.tree.pack(fill=tk.BOTH, expand=True)
 
         # Bind double-click event to open item details
         self.tree.bind("<Double-1>", self.on_item_double_click)
+    
+    def create_legend(self):
+        legend_frame = tk.Frame(self, bg=self.config.BG_COLOR, bd=1, relief=tk.GROOVE)
+        legend_frame.pack(fill=tk.X, padx=15, pady=5)
+        
+        legend_title = tk.Label(
+            legend_frame,
+            text="Color Legend:",
+            font=("Helvetica", 12, "bold"),
+            bg=self.config.BG_COLOR,
+            fg=self.config.TEXT_COLOR
+        )
+        legend_title.pack(side=tk.LEFT, padx=10, pady=5)
+        
+        # Low stock indicator
+        low_stock_frame = tk.Frame(legend_frame, bg=self.config.BG_COLOR)
+        low_stock_frame.pack(side=tk.LEFT, padx=10, pady=5)
+        
+        low_stock_color = tk.Frame(low_stock_frame, bg=self.config.LIGHTY_COLOR, width=20, height=20)
+        low_stock_color.pack(side=tk.LEFT, padx=5)
+        
+        low_stock_label = tk.Label(
+            low_stock_frame,
+            text="Low Stock (<20)",
+            bg=self.config.BG_COLOR,
+            fg=self.config.TEXT_COLOR
+        )
+        low_stock_label.pack(side=tk.LEFT)
+        
+        # Near expiry indicator
+        near_expiry_frame = tk.Frame(legend_frame, bg=self.config.BG_COLOR)
+        near_expiry_frame.pack(side=tk.LEFT, padx=10, pady=5)
+        
+        near_expiry_color = tk.Frame(near_expiry_frame, bg=self.config.ORANGE_COLOR, width=20, height=20)
+        near_expiry_color.pack(side=tk.LEFT, padx=5)
+        
+        near_expiry_label = tk.Label(
+            near_expiry_frame,
+            text="Near Expiry (<7 days)",
+            bg=self.config.BG_COLOR,
+            fg=self.config.TEXT_COLOR
+        )
+        near_expiry_label.pack(side=tk.LEFT)
+        
+        # Both low stock and near expiry
+        both_frame = tk.Frame(legend_frame, bg=self.config.BG_COLOR)
+        both_frame.pack(side=tk.LEFT, padx=10, pady=5)
+        
+        both_color = tk.Frame(both_frame, bg=self.config.SECONDARY_COLOR, width=20, height=20)
+        both_color.pack(side=tk.LEFT, padx=5)
+        
+        both_label = tk.Label(
+            both_frame,
+            text="Low Stock & Near Expiry",
+            bg=self.config.BG_COLOR,
+            fg=self.config.TEXT_COLOR
+        )
+        both_label.pack(side=tk.LEFT)
 
     def load_inventory_data(self):
         for row in self.tree.get_children():
@@ -85,18 +154,17 @@ class InventoryPage(tk.Frame):
                     item_name = item_details.get("itemName", "N/A")
                     stock = item_details.get("stock", {})
                     total_quantity = item_details.get("totalQuantity", "0")
-                    is_low = item_details.get("is_low", False)  # Get the is_low attribute
-                    near_expiry = item_details.get("near_expiry", False)  # Get the near_expiry attribute
+                    is_low = item_details.get("is_low", False)
+                    near_expiry = item_details.get("near_expiry", False)
 
                     expiry_dates = ", ".join(stock.keys()) if stock else "N/A"
 
-                    # Determine the tag based on conditions
                     if is_low and near_expiry:
-                        tag = "low_and_near"  # Both conditions apply
+                        tag = "low_and_near"
                     elif is_low:
-                        tag = "low_stock"  # Only low stock
+                        tag = "low_stock"
                     elif near_expiry:
-                        tag = "near_expiry"  # Only near expiry
+                        tag = "near_expiry"
                     else:
                         tag = ""
 
@@ -115,26 +183,83 @@ class InventoryPage(tk.Frame):
             expiry_dates = item_values[1]
             total_quantity = item_values[2]
 
-            # Create pop-up window
+            # Create pop-up window with improved styling
             dialog = tk.Toplevel(self)
             dialog.title("Item Details")
-            dialog.geometry("300x250")
-            self.center_window(dialog, 300, 250)
+            dialog.geometry("400x350")
+            dialog.configure(bg=self.config.BG_COLOR)
+            self.center_window(dialog, 400, 350)
 
-            tk.Label(dialog, text=f"Item Name:", font=self.normal_font).pack(pady=5)
+            # Add a header
+            header_frame = tk.Frame(dialog, bg=self.config.PRIMARY_COLOR, height=40)
+            header_frame.pack(fill=tk.X)
+            
+            header_label = tk.Label(
+                header_frame, 
+                text="Item Details", 
+                font=("Helvetica", 16, "bold"),
+                bg=self.config.PRIMARY_COLOR,
+                fg="white"
+            )
+            header_label.pack(pady=8)
+
+            # Content frame
+            content_frame = tk.Frame(dialog, bg=self.config.BG_COLOR, padx=20, pady=20)
+            content_frame.pack(fill=tk.BOTH, expand=True)
+
+            tk.Label(
+                content_frame, 
+                text="Item Name:", 
+                font=("Helvetica", 12, "bold"),
+                bg=self.config.BG_COLOR,
+                fg=self.config.TEXT_COLOR
+            ).pack(anchor="w", pady=(10, 2))
+            
             item_name_var = tk.StringVar(value=item_name)
-            item_name_entry = tk.Entry(dialog, textvariable=item_name_var, state="normal" if self.current_user["role"] == "Admin" else "readonly")
-            item_name_entry.pack(pady=2)
+            item_name_entry = tk.Entry(
+                content_frame, 
+                textvariable=item_name_var, 
+                font=("Helvetica", 12),
+                state="normal" if self.current_user["role"] == "Admin" else "readonly",
+                width=30
+            )
+            item_name_entry.pack(anchor="w", pady=(0, 10), fill=tk.X)
 
-            tk.Label(dialog, text=f"Expiry Dates:", font=self.normal_font).pack(pady=5)
+            tk.Label(
+                content_frame, 
+                text="Expiry Dates:", 
+                font=("Helvetica", 12, "bold"),
+                bg=self.config.BG_COLOR,
+                fg=self.config.TEXT_COLOR
+            ).pack(anchor="w", pady=(10, 2))
+            
             expiry_dates_var = tk.StringVar(value=expiry_dates)
-            expiry_dates_entry = tk.Entry(dialog, textvariable=expiry_dates_var, state="normal" if self.current_user["role"] == "Admin" else "readonly")
-            expiry_dates_entry.pack(pady=2)
+            expiry_dates_entry = tk.Entry(
+                content_frame, 
+                textvariable=expiry_dates_var, 
+                font=("Helvetica", 12),
+                state="normal" if self.current_user["role"] == "Admin" else "readonly",
+                width=30
+            )
+            expiry_dates_entry.pack(anchor="w", pady=(0, 10), fill=tk.X)
 
-            tk.Label(dialog, text=f"Total Quantity:", font=self.normal_font).pack(pady=5)
+            tk.Label(
+                content_frame, 
+                text="Total Quantity:", 
+                font=("Helvetica", 12, "bold"),
+                bg=self.config.BG_COLOR,
+                fg=self.config.TEXT_COLOR
+            ).pack(anchor="w", pady=(10, 2))
+            
             total_quantity_var = tk.StringVar(value=total_quantity)
-            total_quantity_entry = tk.Entry(dialog, textvariable=total_quantity_var, state="normal" if self.current_user["role"] == "Admin" else "readonly")
-            total_quantity_entry.pack(pady=2)
+            total_quantity_entry = tk.Entry(
+                content_frame, 
+                textvariable=total_quantity_var, 
+                font=("Helvetica", 12),
+                state="normal" if self.current_user["role"] == "Admin" else "readonly",
+                width=30
+            )
+            total_quantity_entry.pack(anchor="w", pady=(0, 10), fill=tk.X)
 
             def save_changes():
                 """Save the updated details only if user is an admin."""
@@ -185,32 +310,88 @@ class InventoryPage(tk.Frame):
                         self.load_inventory_data()
                         dialog.destroy()
             
+            button_frame = tk.Frame(content_frame, bg=self.config.BG_COLOR)
+            button_frame.pack(fill=tk.X, pady=15)
+            
             if self.current_user["role"] == "Admin":
-                button_frame = tk.Frame(dialog)
-                button_frame.pack(pady=10)
+                save_btn = tk.Button(
+                    button_frame, 
+                    text="Save Changes", 
+                    command=save_changes, 
+                    **self.config.BUTTON_STYLES["primary"]
+                )
+                save_btn.pack(side=tk.LEFT, padx=5)
+                
+                delete_btn = tk.Button(
+                    button_frame, 
+                    text="Delete Item", 
+                    command=delete_item, 
+                    **self.config.BUTTON_STYLES["secondary"]
+                )
+                delete_btn.pack(side=tk.LEFT, padx=5)
 
-                tk.Button(button_frame, text="Save Changes", command=save_changes, **self.config.BUTTON_STYLES["primary"]).pack(side=tk.LEFT, padx=5)
-                tk.Button(button_frame, text="Delete Item", command=delete_item, **self.config.BUTTON_STYLES["secondary"]).pack(side=tk.LEFT, padx=5)
-
-            tk.Button(dialog, text="Close", command=dialog.destroy, **self.config.BUTTON_STYLES["secondary"]).pack(pady=5)
+            close_btn = tk.Button(
+                button_frame, 
+                text="Close", 
+                command=dialog.destroy, 
+                **self.config.BUTTON_STYLES["secondary"]
+            )
+            close_btn.pack(side=tk.RIGHT, padx=5)
 
     def add_inventory_item(self):
         dialog = tk.Toplevel(self)
         dialog.title("Add Inventory Item")
-        dialog.geometry("300x250")
-        self.center_window(dialog, 300, 250)
+        dialog.geometry("400x350")
+        dialog.configure(bg=self.config.BG_COLOR)
+        self.center_window(dialog, 400, 350)
 
-        tk.Label(dialog, text="Item Name:").pack(pady=2)
-        item_name_entry = tk.Entry(dialog)
-        item_name_entry.pack(pady=2)
+        header_frame = tk.Frame(dialog, bg=self.config.PRIMARY_COLOR, height=40)
+        header_frame.pack(fill=tk.X)
+        
+        header_label = tk.Label(
+            header_frame, 
+            text="Add New Item", 
+            font=("Helvetica", 16, "bold"),
+            bg=self.config.PRIMARY_COLOR,
+            fg="white"
+        )
+        header_label.pack(pady=8)
 
-        tk.Label(dialog, text="Expiry Date (YYYY-MM-DD):").pack(pady=2)
-        expiry_date_entry = tk.Entry(dialog)
-        expiry_date_entry.pack(pady=2)
+        content_frame = tk.Frame(dialog, bg=self.config.BG_COLOR, padx=20, pady=20)
+        content_frame.pack(fill=tk.BOTH, expand=True)
 
-        tk.Label(dialog, text="Stock Quantity:").pack(pady=2)
-        stock_quantity_entry = tk.Entry(dialog)
-        stock_quantity_entry.pack(pady=2)
+        tk.Label(
+            content_frame, 
+            text="Item Name:", 
+            font=("Helvetica", 12, "bold"),
+            bg=self.config.BG_COLOR,
+            fg=self.config.TEXT_COLOR
+        ).pack(anchor="w", pady=(10, 2))
+        
+        item_name_entry = tk.Entry(content_frame, font=("Helvetica", 12), width=30)
+        item_name_entry.pack(anchor="w", pady=(0, 10), fill=tk.X)
+
+        tk.Label(
+            content_frame, 
+            text="Expiry Date (YYYY-MM-DD):", 
+            font=("Helvetica", 12, "bold"),
+            bg=self.config.BG_COLOR,
+            fg=self.config.TEXT_COLOR
+        ).pack(anchor="w", pady=(10, 2))
+        
+        expiry_date_entry = tk.Entry(content_frame, font=("Helvetica", 12), width=30)
+        expiry_date_entry.pack(anchor="w", pady=(0, 10), fill=tk.X)
+
+        tk.Label(
+            content_frame, 
+            text="Stock Quantity:", 
+            font=("Helvetica", 12, "bold"),
+            bg=self.config.BG_COLOR,
+            fg=self.config.TEXT_COLOR
+        ).pack(anchor="w", pady=(10, 2))
+        
+        stock_quantity_entry = tk.Entry(content_frame, font=("Helvetica", 12), width=30)
+        stock_quantity_entry.pack(anchor="w", pady=(0, 10), fill=tk.X)
 
         def submit():
             item_name = item_name_entry.get()
@@ -241,25 +422,26 @@ class InventoryPage(tk.Frame):
             self.inventory_data = FoodInventory().displayItems()
             self.load_inventory_data()
 
-        submit_button = tk.Button(dialog, text="Add Item", command=submit, **self.config.BUTTON_STYLES["primary"])
-        submit_button.pack(pady=10)
-
-    def center_window(self, window, width, height):
-        # Get screen width and height
-        screen_width = window.winfo_screenwidth()
-        screen_height = window.winfo_screenheight()
+        button_frame = tk.Frame(content_frame, bg=self.config.BG_COLOR)
+        button_frame.pack(fill=tk.X, pady=15)
         
-        # Calculate position
-        x = (screen_width - width) // 2
-        y = (screen_height - height) // 2
+        submit_button = tk.Button(
+            button_frame, 
+            text="Add Item", 
+            command=submit, 
+            **self.config.BUTTON_STYLES["primary"]
+        )
+        submit_button.pack(side=tk.LEFT, padx=5)
         
-        # Set the position
-        window.geometry(f"{width}x{height}+{x}+{y}")
-
+        cancel_button = tk.Button(
+            button_frame, 
+            text="Cancel", 
+            command=dialog.destroy, 
+            **self.config.BUTTON_STYLES["secondary"]
+        )
+        cancel_button.pack(side=tk.RIGHT, padx=5)
 
     def on_column_click(self, column_name):
-        """Change the column header title when clicked and toggle sorting order."""
-
         # Toggle sort order
         self.sort_order[column_name] = not self.sort_order[column_name]
         order_symbol = "▲" if self.sort_order[column_name] else "▼"
@@ -271,6 +453,14 @@ class InventoryPage(tk.Frame):
 
         self.tree.heading(column_name, text=f"{column_name.replace('itemName', 'Item Name').replace('stock', 'Expiry Date').replace('totalQuantity', 'Quantity')} {order_symbol}")
 
-        # print(self.sort_order)
         self.inventory_data = FoodInventory().displayItems(column_name, self.sort_order[column_name])
         self.load_inventory_data()
+
+    def center_window(self, window, width, height):
+        screen_width = window.winfo_screenwidth()
+        screen_height = window.winfo_screenheight()
+        
+        x = (screen_width - width) // 2
+        y = (screen_height - height) // 2
+        
+        window.geometry(f"{width}x{height}+{x}+{y}")
