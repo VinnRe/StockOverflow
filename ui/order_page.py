@@ -136,52 +136,104 @@ class OrderPage(tk.Frame):
         self.receive_btn.config(state=tk.DISABLED)
 
     def create_new_order(self):
-        # Open a dialog box to enter order details and place an order
         dialog = tk.Toplevel(self)
         dialog.title("New Order")
-        dialog.geometry("300x200")
-        self.center_window(dialog, 300, 200)
+        dialog.geometry("400x350")
+        dialog.configure(bg=self.config.BG_COLOR)
+        self.center_window(dialog, 400, 350)
+
+        header_frame = tk.Frame(dialog, bg=self.config.PRIMARY_COLOR, height=40)
+        header_frame.pack(fill=tk.X)
         
-        tk.Label(dialog, text="Ingredient Name:").pack()
-        ingredient_entry = tk.Entry(dialog)
-        ingredient_entry.pack()
+        header_label = tk.Label(
+            header_frame, 
+            text="Place New Order", 
+            font=("Helvetica", 16, "bold"),
+            bg=self.config.PRIMARY_COLOR,
+            fg="white"
+        )
+        header_label.pack(pady=8)
+
+        content_frame = tk.Frame(dialog, bg=self.config.BG_COLOR, padx=20, pady=20)
+        content_frame.pack(fill=tk.BOTH, expand=True)
+
+        tk.Label(
+            content_frame, 
+            text="Ingredient Name:", 
+            font=("Helvetica", 12, "bold"),
+            bg=self.config.BG_COLOR,
+            fg=self.config.TEXT_COLOR
+        ).pack(anchor="w", pady=(10, 2))
         
-        tk.Label(dialog, text="Quantity:").pack()
-        quantity_entry = tk.Entry(dialog)
-        quantity_entry.pack()
+        ingredient_entry = tk.Entry(content_frame, font=("Helvetica", 12), width=30)
+        ingredient_entry.pack(anchor="w", pady=(0, 10), fill=tk.X)
+
+        tk.Label(
+            content_frame, 
+            text="Quantity:", 
+            font=("Helvetica", 12, "bold"),
+            bg=self.config.BG_COLOR,
+            fg=self.config.TEXT_COLOR
+        ).pack(anchor="w", pady=(10, 2))
         
-        tk.Label(dialog, text="Expiration Date (YYYY-MM-DD):").pack()
-        expiry_entry = tk.Entry(dialog)
-        expiry_entry.pack()
+        quantity_entry = tk.Entry(content_frame, font=("Helvetica", 12), width=30)
+        quantity_entry.pack(anchor="w", pady=(0, 10), fill=tk.X)
+
+        tk.Label(
+            content_frame, 
+            text="Expiration Date (YYYY-MM-DD):", 
+            font=("Helvetica", 12, "bold"),
+            bg=self.config.BG_COLOR,
+            fg=self.config.TEXT_COLOR
+        ).pack(anchor="w", pady=(10, 2))
         
+        expiry_entry = tk.Entry(content_frame, font=("Helvetica", 12), width=30)
+        expiry_entry.pack(anchor="w", pady=(0, 10), fill=tk.X)
+
         def submit_order():
             ingredient = ingredient_entry.get().strip()
             quantity = quantity_entry.get().strip()
             expiry_date = expiry_entry.get().strip()
-            
+
             if not ingredient or not quantity or not expiry_date:
                 messagebox.showerror("Error", "All fields are required!")
                 return
-            
+
             try:
                 quantity = int(quantity)
                 datetime.strptime(expiry_date, "%Y-%m-%d") 
             except ValueError:
                 messagebox.showerror("Error", "Invalid quantity or date format!")
                 return
-            
+
             order_content = {ingredient: {"quantity": quantity, "expiry_date": expiry_date}}
             order = Order(order_content, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-            
+
             order_controller = OrderController()
             order_controller.place_order(order)
-            
+
             messagebox.showinfo("Success", "Order placed successfully!")
             dialog.destroy()
             self.load_orders()
-        
-        submit_btn = tk.Button(dialog, text="Place Order", command=submit_order)
-        submit_btn.pack(pady=10)
+
+        button_frame = tk.Frame(content_frame, bg=self.config.BG_COLOR)
+        button_frame.pack(fill=tk.X, pady=15)
+
+        submit_button = tk.Button(
+            button_frame, 
+            text="Place Order", 
+            command=submit_order, 
+            **self.config.BUTTON_STYLES["primary"]
+        )
+        submit_button.pack(side=tk.LEFT, padx=5)
+
+        cancel_button = tk.Button(
+            button_frame, 
+            text="Cancel", 
+            command=dialog.destroy, 
+            **self.config.BUTTON_STYLES["secondary"]
+        )
+        cancel_button.pack(side=tk.RIGHT, padx=5)
 
     def center_window(self, window, width, height):
         screen_width = window.winfo_screenwidth()
@@ -189,5 +241,5 @@ class OrderPage(tk.Frame):
 
         x = (screen_width - width) // 2
         y = (screen_height - height) // 2
-        
+
         window.geometry(f"{width}x{height}+{x}+{y}")
