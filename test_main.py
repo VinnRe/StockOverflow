@@ -6,7 +6,7 @@ from controllers.food_inventory_controller import FoodInventory  # Import your c
 
 # Load environment variables
 load_dotenv()
-DB_URL = os.getenv("DB_URL")
+DB_URL = os.getenv("https://stockoverflow-b4e38-default-rtdb.firebaseio.com")
 
 # Initialize Firebase Admin SDK (Make sure your .env has DB_URL set)
 cred = credentials.Certificate("key.json")  # Update path

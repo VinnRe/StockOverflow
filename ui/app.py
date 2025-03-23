@@ -33,7 +33,7 @@ class StockOverflowApp(tk.Tk):
 
         # Main app setup
         self.title(self.config.APP_NAME)
-        self.geometry("900x700")
+        self.geometry("1000x750")  # Increased window size for better visibility
         self.configure(bg=self.config.BG_COLOR)
         
         # Current user (mock for now)
@@ -45,8 +45,11 @@ class StockOverflowApp(tk.Tk):
 
         # Define style
         style = ttk.Style()
-        style.configure("Treeview", font=("Helvetica", 12))
+        style.configure("Treeview", font=("Helvetica", 12), rowheight=25)
         style.configure("Treeview.Heading", font=("Helvetica", 16, "bold"))
+        
+        # Center the window on screen
+        self.center_window(self, 1000, 750)
         
     def create_custom_fonts(self):
         self.title_font = font.Font(family="Helvetica", size=30, weight="bold")
@@ -55,9 +58,12 @@ class StockOverflowApp(tk.Tk):
         self.button_font = font.Font(family="Helvetica", size=20, weight="bold")
     
     def create_ui(self):
+        # Create app header with logo/title
+        self.create_app_header()
+        
         # Create main container frame
         self.main_frame = tk.Frame(self, bg=self.config.BG_COLOR)
-        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=10)
         
         # Create navigation bar
         self.create_navbar()
@@ -66,15 +72,43 @@ class StockOverflowApp(tk.Tk):
         self.content_frame = tk.Frame(self.main_frame, bg=self.config.BG_COLOR, bd=2, relief=tk.GROOVE)
         self.content_frame.pack(fill=tk.BOTH, expand=True, pady=10)
         
+        # Create status bar
+        self.create_status_bar()
+        
         # Default to showing recipes
         self.show_recipes()
+    
+    def create_app_header(self):
+        """Create an app header with logo and title"""
+        header_frame = tk.Frame(self, bg=self.config.PRIMARY_COLOR, height=60)
+        header_frame.pack(fill=tk.X)
+        
+        # App title
+        app_title = tk.Label(
+            header_frame,
+            text=self.config.APP_NAME,
+            font=("Helvetica", 24, "bold"),
+            bg=self.config.PRIMARY_COLOR,
+            fg="white"
+        )
+        app_title.pack(side=tk.LEFT, padx=20, pady=10)
+        
+        # Current user display
+        self.user_label = tk.Label(
+            header_frame,
+            text=f"User: {self.current_user['username']} ({self.current_user['role']})",
+            font=("Helvetica", 12),
+            bg=self.config.PRIMARY_COLOR,
+            fg="white"
+        )
+        self.user_label.pack(side=tk.RIGHT, padx=20, pady=10)
     
     def create_navbar(self):
         navbar = tk.Frame(self.main_frame, bg=self.config.BG_COLOR, bd=2, relief=tk.GROOVE)
         navbar.pack(fill=tk.X, pady=5)
         
         nav_buttons_frame = tk.Frame(navbar, bg=self.config.BG_COLOR)
-        nav_buttons_frame.pack(fill=tk.X, padx=5, pady=5)
+        nav_buttons_frame.pack(fill=tk.X, padx=10, pady=10)
         
         for i in range(4):
             nav_buttons_frame.columnconfigure(i, weight=1)
@@ -83,28 +117,30 @@ class StockOverflowApp(tk.Tk):
             "bg": AppConfig.PRIMARY_COLOR,
             "fg": "white",
             "font": self.button_font,
-            "relief": tk.GROOVE,
+            "relief": tk.RAISED,  # Changed from GROOVE to RAISED for better 3D effect
             "bd": 2,
             "padx": 20,
             "pady": 10,
             "width": 12,
             "highlightbackground": "green",
             "highlightcolor": "green",
-            "highlightthickness": 2
+            "highlightthickness": 2,
+            "cursor": "hand2"  # Add hand cursor for better UX
         }
         
         self.red_button_style = {
             "bg": AppConfig.SECONDARY_COLOR,
             "fg": "white",
             "font": self.button_font,
-            "relief": tk.GROOVE,
+            "relief": tk.RAISED,  # Changed from GROOVE to RAISED
             "bd": 2,
             "padx": 20,
             "pady": 10,
             "width": 12,
             "highlightbackground": "darkred",
             "highlightcolor": "darkred",
-            "highlightthickness": 2
+            "highlightthickness": 2,
+            "cursor": "hand2"  # Add hand cursor
         }
 
         self.recipes_btn = tk.Button(
@@ -113,7 +149,7 @@ class StockOverflowApp(tk.Tk):
             command=self.show_recipes,
             **self.green_button_style
         )
-        self.recipes_btn.grid(row=0, column=0, padx=5)
+        self.recipes_btn.grid(row=0, column=0, padx=10)
 
         # Initialize inventory and orders buttons as None
         self.inventory_btn = None
@@ -127,7 +163,7 @@ class StockOverflowApp(tk.Tk):
                 command=self.show_inventory,
                 **self.green_button_style
             )
-            self.inventory_btn.grid(row=0, column=1, padx=5)
+            self.inventory_btn.grid(row=0, column=1, padx=10)
 
             self.orders_btn = tk.Button(
                 nav_buttons_frame, 
@@ -135,7 +171,7 @@ class StockOverflowApp(tk.Tk):
                 command=self.show_orders,
                 **self.green_button_style
             )
-            self.orders_btn.grid(row=0, column=2, padx=5)
+            self.orders_btn.grid(row=0, column=2, padx=10)
 
         button_text = "Logout" if self.current_user.get("role") == "Admin" else "Admin Access"
         button_command = self.handle_logout if self.current_user.get("role") == "Admin" else self.switch_profile
@@ -143,7 +179,24 @@ class StockOverflowApp(tk.Tk):
         self.profile_btn = tk.Button(
             nav_buttons_frame, text=button_text, command=button_command, **self.red_button_style
         )
-        self.profile_btn.grid(row=0, column=3, padx=5)
+        self.profile_btn.grid(row=0, column=3, padx=10)
+    
+    def create_status_bar(self):
+        """Create a status bar at the bottom of the app"""
+        status_frame = tk.Frame(self, bg="#f0f0f0", height=25)
+        status_frame.pack(side=tk.BOTTOM, fill=tk.X)
+        
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        status_text = f"Stock Overflow System | Current Time: {current_time}"
+        
+        status_label = tk.Label(
+            status_frame,
+            text=status_text,
+            font=("Helvetica", 10),
+            bg="#f0f0f0",
+            fg="#333333"
+        )
+        status_label.pack(side=tk.LEFT, padx=10, pady=3)
 
     def handle_login(self, username, password, dialog):
         if self.admin.login(username, password):
@@ -154,17 +207,21 @@ class StockOverflowApp(tk.Tk):
 
             # Update navbar button without recreating the whole navbar
             self.profile_btn.config(text="Logout", command=self.handle_logout)
+            
+            # Update user label in header
+            self.user_label.config(text=f"User: {username} (Admin)")
 
             # Add Inventory and Orders buttons if they don't exist
             if not self.inventory_btn:
-                nav_buttons_frame = self.profile_btn.master #get the parent frame of profile_btn
+                nav_buttons_frame = self.profile_btn.master #get the parent frame 
+                nav_buttons_frame = self.profile_btn.master #get the parent frame
                 self.inventory_btn = tk.Button(
                     nav_buttons_frame, 
                     text="Inventory",
                     command=self.show_inventory,
                     **self.green_button_style
                 )
-                self.inventory_btn.grid(row=0, column=1, padx=5)
+                self.inventory_btn.grid(row=0, column=1, padx=10)
 
             if not self.orders_btn:
                 nav_buttons_frame = self.profile_btn.master
@@ -174,7 +231,7 @@ class StockOverflowApp(tk.Tk):
                     command=self.show_orders,
                     **self.green_button_style
                 )
-                self.orders_btn.grid(row=0, column=2, padx=5)
+                self.orders_btn.grid(row=0, column=2, padx=10)
 
             self.update_idletasks()
         else:
@@ -187,6 +244,9 @@ class StockOverflowApp(tk.Tk):
             messagebox.showinfo("Success", "Logged out successfully.")
 
             self.profile_btn.config(text="Admin Access", command=self.switch_profile)
+            
+            # Update user label in header
+            self.user_label.config(text=f"User: staff (Staff)")
 
             # Remove Inventory and Orders buttons if they exist
             if self.inventory_btn:
@@ -244,10 +304,10 @@ class StockOverflowApp(tk.Tk):
         order_page.pack(fill=tk.BOTH, expand=True)
     
     def switch_profile(self):
-        # Create a dialog window
+        # Create a dialog window with improved styling
         dialog = tk.Toplevel(self)
         dialog.title("Admin Access")
-        dialog.geometry("300x250")
+        dialog.geometry("400x350")
         dialog.configure(bg=self.config.BG_COLOR)
         dialog.transient(self)
         dialog.grab_set()
@@ -256,34 +316,52 @@ class StockOverflowApp(tk.Tk):
         self.admin = Admin()
 
         # Center the dialog on the screen
-        self.center_window(dialog, 300, 250)
+        self.center_window(dialog, 400, 350)
+        
+        # Add header
+        header_frame = tk.Frame(dialog, bg=self.config.PRIMARY_COLOR, height=40)
+        header_frame.pack(fill=tk.X)
+        
+        header_label = tk.Label(
+            header_frame, 
+            text="Admin Login", 
+            font=("Helvetica", 16, "bold"),
+            bg=self.config.PRIMARY_COLOR,
+            fg="white"
+        )
+        header_label.pack(pady=8)
+        
+        # Content frame
+        content_frame = tk.Frame(dialog, bg=self.config.BG_COLOR, padx=20, pady=20)
+        content_frame.pack(fill=tk.BOTH, expand=True)
 
         # Add username label and entry field
         tk.Label(
-            dialog,
+            content_frame,
             text="Username:",
-            font=self.normal_font,
+            font=("Helvetica", 12, "bold"),
             bg=self.config.BG_COLOR,
             fg=self.config.TEXT_COLOR
-        ).pack(pady=(10, 0))
+        ).pack(anchor="w", pady=(10, 2))
         
-        username_entry = tk.Entry(dialog)
-        username_entry.pack(pady=(0, 10))
+        username_entry = tk.Entry(content_frame, font=("Helvetica", 12), width=30)
+        username_entry.pack(anchor="w", pady=(0, 10), fill=tk.X)
+        username_entry.focus_set()  # Set focus to username field
 
         # Add password label and entry field
         tk.Label(
-            dialog,
+            content_frame,
             text="Password:",
-            font=self.normal_font,
+            font=("Helvetica", 12, "bold"),
             bg=self.config.BG_COLOR,
             fg=self.config.TEXT_COLOR
-        ).pack()
+        ).pack(anchor="w", pady=(10, 2))
         
-        password_entry = tk.Entry(dialog, show="*")
-        password_entry.pack(pady=(0, 10))
+        password_entry = tk.Entry(content_frame, show="*", font=("Helvetica", 12), width=30)
+        password_entry.pack(anchor="w", pady=(0, 10), fill=tk.X)
 
         # Button frame
-        button_frame = tk.Frame(dialog, bg=self.config.BG_COLOR)
+        button_frame = tk.Frame(content_frame, bg=self.config.BG_COLOR)
         button_frame.pack(fill=tk.X, pady=20)
 
         # Login button
@@ -303,6 +381,9 @@ class StockOverflowApp(tk.Tk):
             **self.config.BUTTON_STYLES["secondary"]
         )
         cancel_btn.pack(side=tk.RIGHT, padx=10)
+        
+        # Bind Enter key to login
+        dialog.bind('<Return>', lambda event: self.handle_login(username_entry.get(), password_entry.get(), dialog))
     
     def center_window(self, window, width, height):
         # Get screen width and height
