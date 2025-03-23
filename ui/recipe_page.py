@@ -14,12 +14,11 @@ class RecipePage(tk.Frame):
         self.header_font = header_font
         self.normal_font = normal_font
         
-        self.selected_recipe_id = None  # Store selected recipe ID
+        self.selected_recipe_id = None
         
         self.create_ui()
 
     def create_ui(self):
-        # Header
         header = tk.Frame(self, bg=self.config.BG_COLOR)
         header.pack(fill=tk.X, pady=5)
         
@@ -30,7 +29,6 @@ class RecipePage(tk.Frame):
             add_btn = tk.Button(header, text="Add Recipe", command=self.add_recipe, **self.config.BUTTON_STYLES["primary"])
             add_btn.pack(side=tk.RIGHT, padx=5)
         
-        # Table Frame
         table_frame = tk.Frame(self, bg=self.config.BG_COLOR)
         table_frame.pack(fill=tk.BOTH, expand=True, pady=10)
         
@@ -48,10 +46,8 @@ class RecipePage(tk.Frame):
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.recipes_tree.pack(fill=tk.BOTH, expand=True)
 
-        # Bind row selection event
         self.recipes_tree.bind("<<TreeviewSelect>>", self.on_row_selected)
 
-        # Action Buttons
         self.action_frame = tk.Frame(self, bg=self.config.BG_COLOR)
         self.action_frame.pack(fill=tk.X, pady=5)
 
@@ -61,7 +57,7 @@ class RecipePage(tk.Frame):
         self.load_recipe_data()
 
     def load_recipe_data(self):
-        self.recipes_tree.delete(*self.recipes_tree.get_children())  # Clear existing items
+        self.recipes_tree.delete(*self.recipes_tree.get_children())
 
         recipes = StaffController().viewAllRecipes()
         for recipe_entry in recipes:
@@ -142,13 +138,10 @@ class RecipePage(tk.Frame):
 
 
     def center_window(self, window, width, height):
-        # Get screen width and height
         screen_width = window.winfo_screenwidth()
         screen_height = window.winfo_screenheight()
         
-        # Calculate position
         x = (screen_width - width) // 2
         y = (screen_height - height) // 2
         
-        # Set the position
         window.geometry(f"{width}x{height}+{x}+{y}")

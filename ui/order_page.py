@@ -20,11 +20,9 @@ class OrderPage(tk.Frame):
         self.load_orders()
 
     def create_ui(self):
-        # Create header
         header = tk.Frame(self, bg=self.config.BG_COLOR)
         header.pack(fill=tk.X, pady=5)
         
-        # Title
         title_label = tk.Label(
             header, 
             text="Order Management",
@@ -53,37 +51,30 @@ class OrderPage(tk.Frame):
         )
         self.receive_btn.pack(side=tk.RIGHT, padx=5)
 
-        # Create orders table
         table_frame = tk.Frame(self, bg=self.config.BG_COLOR)
         table_frame.pack(fill=tk.BOTH, expand=True, pady=10)
         
-        # Create a treeview for the orders
         columns = ("ID", "Date", "Items", "Status")
         self.orders_tree = ttk.Treeview(table_frame, columns=columns, show="headings")
         
-        # Configure columns
         self.orders_tree.heading("ID", text="ID")
         self.orders_tree.heading("Date", text="Date")
         self.orders_tree.heading("Items", text="Items")
         self.orders_tree.heading("Status", text="Status")
         
-        # Configure column widths
         self.orders_tree.column("ID", width=50)
         self.orders_tree.column("Date", width=100)
         self.orders_tree.column("Items", width=200)
         self.orders_tree.column("Status", width=100)
         
-        # Add scrollbar
         scrollbar = ttk.Scrollbar(table_frame, orient=tk.VERTICAL, command=self.orders_tree.yview)
         self.orders_tree.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.orders_tree.pack(fill=tk.BOTH, expand=True)
 
-        # Bind row selection event to enable button
         self.orders_tree.bind("<<TreeviewSelect>>", self.on_row_selected)
         
     def load_orders(self):
-        """Fetch and display orders in the table."""
         order_controller = OrderController()
         orders = order_controller.get_all_orders()
         self.orders_tree.delete(*self.orders_tree.get_children())
@@ -110,11 +101,11 @@ class OrderPage(tk.Frame):
             print(f"Order ID: {order_id}, Date: {order_date}, Items: {formatted_content}, Status: {order_status}")
 
     def on_row_selected(self, event):
-        """Enable the Receive Order button only if a row is selected and not received."""
+        # Enable the Receive Order button only if a row is selected and not received
         selected_item = self.orders_tree.selection()
         
         if selected_item:
-            order_status = self.orders_tree.item(selected_item, "values")[3]  # Get the status column value
+            order_status = self.orders_tree.item(selected_item, "values")[3]
             
             if order_status == "Received":
                 self.receive_btn.config(state=tk.DISABLED)
@@ -124,7 +115,7 @@ class OrderPage(tk.Frame):
             self.receive_btn.config(state=tk.DISABLED)
 
     def receive_selected_order(self):
-        """Receives the selected order and updates the status."""
+        # Receives the selected order and updates the status
         selected_item = self.orders_tree.selection()
         if not selected_item:
             messagebox.showwarning("No Selection", "Please select an order first.")
@@ -145,7 +136,7 @@ class OrderPage(tk.Frame):
         self.receive_btn.config(state=tk.DISABLED)
 
     def create_new_order(self):
-        """Open a dialog box to enter order details and place an order."""
+        # Open a dialog box to enter order details and place an order
         dialog = tk.Toplevel(self)
         dialog.title("New Order")
         dialog.geometry("300x200")
@@ -193,9 +184,10 @@ class OrderPage(tk.Frame):
         submit_btn.pack(pady=10)
 
     def center_window(self, window, width, height):
-        """Centers a window on the screen."""
         screen_width = window.winfo_screenwidth()
         screen_height = window.winfo_screenheight()
+
         x = (screen_width - width) // 2
         y = (screen_height - height) // 2
+        
         window.geometry(f"{width}x{height}+{x}+{y}")
