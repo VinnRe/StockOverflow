@@ -8,7 +8,11 @@
 
 StockOverflow is a python app that is designed to help small to medium-sized food service businesses reduce food waste through effective inventory management. The system focuses on tracking perishable ingredients with their expiration dates, managing recipes, and monitoring stock levels.
 
-The project is made with SDG 12: Responsible Consumption and Production in mind. StockOverflow directly supports SDG 12 through several key mechanisms: Food Waste Reduction, Inventory Optimization, and Data Visibility
+<p>
+  <img src="https://github.com/VinnRe/StockOverflow/blob/merged-branches/images/SDG12.png" alt="SDG12 Logo">
+</p>
+
+The project is made with [SDG 12: Responsible Consumption and Production](https://sdgs.un.org/goals/goal12) in mind. StockOverflow directly supports SDG 12 through several key mechanisms: Food Waste Reduction, Inventory Optimization, and Data Visibility
 ## 🤓 Developers
 
 [🙋‍♂️ Briones, Sean Kyron](https://www.github.com/Seankyron)
