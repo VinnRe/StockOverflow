@@ -1,5 +1,8 @@
 
-![](https://github.com/VinnRe/StockOverflow/blob/merged-branches/images/stockoverflow_logo_wbg.png)
+<p align="center">
+  <img src="https://github.com/VinnRe/StockOverflow/blob/merged-branches/images/stockoverflow_logo_wbg.png" alt="StockOverflow Logo">
+</p>
+
 
 # Stock Overflow
 
