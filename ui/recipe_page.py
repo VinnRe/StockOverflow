@@ -29,6 +29,8 @@ class RecipePage(tk.Frame):
         if self.current_user["role"] == "Admin":
             add_btn = tk.Button(header, text="Add Recipe", command=self.add_recipe, **self.config.BUTTON_STYLES["primary"])
             add_btn.pack(side=tk.RIGHT, padx=5)
+            delete_btn = tk.Button(header, text="Delete Recipe", command=self.delete_recipe, **self.config.BUTTON_STYLES["secondary"])
+            delete_btn.pack(side=tk.RIGHT, padx=5)
         
         # Table Frame
         table_frame = tk.Frame(self, bg=self.config.BG_COLOR)
@@ -152,3 +154,40 @@ class RecipePage(tk.Frame):
         
         # Set the position
         window.geometry(f"{width}x{height}+{x}+{y}")
+
+    def delete_recipe(self):
+        def get_recipe_key(selected_recipe):
+            for recipe in recipes:
+                key = list(recipe.keys())[0]
+                if recipe[key]['recipeName'] == selected_recipe:
+                    return key
+            return None
+        def confirm_delete_recipe():
+            selected_recipe = recipe_var.get()
+            selected_id = get_recipe_key(selected_recipe)
+            is_deleted = StaffController().deleteRecipe(selected_id)
+            if is_deleted:
+                messagebox.showinfo("Success", "Recipe deleted successfully.")
+                dialog.destroy()
+                self.load_recipe_data()
+            else:
+                messagebox.showinfo("Failed", "Recipe not deleted. Try Again")
+                dialog.destroy()
+                self.load_recipe_data()
+
+        def close_window():
+            dialog.destroy()
+
+        dialog = tk.Toplevel(self)
+        dialog.title("Delete Recipe")
+        self.center_window(dialog, 400, 400)
+
+        tk.Label(dialog, text="Select Recipe:").pack(pady=5)
+        recipes = StaffController().viewAllRecipes()
+        recipe_names = [list(recipe.values())[0]['recipeName'] for recipe in recipes]
+        recipe_var = tk.StringVar()
+        recipe_dropdown = ttk.Combobox(dialog, textvariable=recipe_var, values=recipe_names)
+        recipe_dropdown.pack(pady=5)
+
+        tk.Button(dialog, text="Cancel", command=close_window).pack(pady=5)
+        tk.Button(dialog, text="Delete", command=confirm_delete_recipe).pack(pady=5)

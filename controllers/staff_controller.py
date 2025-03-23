@@ -96,3 +96,30 @@ class StaffController:
         except Exception as e:
             print(f"Error ordering recipe: {e}")
             return False
+
+    def deleteRecipe(self, recipeId):
+        try:
+            recipe = self.recipes_ref.child(recipeId).get()
+            if not recipe:
+                print("No recipe found.")
+                return False
+            self.recipes_ref.child(recipeId).delete()
+            return True
+        except Exception as e:
+            print(f"Error deleting recipe: {e}")
+            return False
+
+    def updateRecipe(self, recipeId, recipeName, new_recipe):
+        try:
+            recipe = self.recipes_ref.child(recipeId).get()
+            if not recipe:
+                print("No recipe found.")
+                return False
+            self.recipes_ref.child(recipeId).update({
+                "recipeName": recipeName, 
+                "ingredients": new_recipe
+            })
+            return True
+        except Exception as e:
+            print(f"Error deleting recipe: {e}")
+            return False
