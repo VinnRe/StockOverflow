@@ -14,12 +14,11 @@ class RecipePage(tk.Frame):
         self.header_font = header_font
         self.normal_font = normal_font
         
-        self.selected_recipe_id = None  # Store selected recipe ID
+        self.selected_recipe_id = None
         
         self.create_ui()
 
     def create_ui(self):
-        # Header
         header = tk.Frame(self, bg=self.config.BG_COLOR)
         header.pack(fill=tk.X, pady=5)
         
@@ -30,7 +29,6 @@ class RecipePage(tk.Frame):
             add_btn = tk.Button(header, text="Add Recipe", command=self.add_recipe, **self.config.BUTTON_STYLES["primary"])
             add_btn.pack(side=tk.RIGHT, padx=5)
         
-        # Table Frame
         table_frame = tk.Frame(self, bg=self.config.BG_COLOR)
         table_frame.pack(fill=tk.BOTH, expand=True, pady=10)
         
@@ -48,10 +46,8 @@ class RecipePage(tk.Frame):
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.recipes_tree.pack(fill=tk.BOTH, expand=True)
 
-        # Bind row selection event
         self.recipes_tree.bind("<<TreeviewSelect>>", self.on_row_selected)
 
-        # Action Buttons
         self.action_frame = tk.Frame(self, bg=self.config.BG_COLOR)
         self.action_frame.pack(fill=tk.X, pady=5)
 
@@ -61,7 +57,7 @@ class RecipePage(tk.Frame):
         self.load_recipe_data()
 
     def load_recipe_data(self):
-        self.recipes_tree.delete(*self.recipes_tree.get_children())  # Clear existing items
+        self.recipes_tree.delete(*self.recipes_tree.get_children())
 
         recipes = StaffController().viewAllRecipes()
         for recipe_entry in recipes:
@@ -93,6 +89,68 @@ class RecipePage(tk.Frame):
             messagebox.showerror("Error", "Not enough ingredients in inventory!")
 
     def add_recipe(self):
+        dialog = tk.Toplevel(self)
+        dialog.title("Add Recipe")
+        dialog.geometry("400x600")
+        dialog.configure(bg=self.config.BG_COLOR)
+        self.center_window(dialog, 400, 600)
+
+        header_frame = tk.Frame(dialog, bg=self.config.PRIMARY_COLOR, height=40)
+        header_frame.pack(fill=tk.X)
+        
+        header_label = tk.Label(
+            header_frame, 
+            text="Add New Recipe", 
+            font=("Helvetica", 16, "bold"),
+            bg=self.config.PRIMARY_COLOR,
+            fg="white"
+        )
+        header_label.pack(pady=8)
+
+        content_frame = tk.Frame(dialog, bg=self.config.BG_COLOR, padx=20, pady=20)
+        content_frame.pack(fill=tk.BOTH, expand=True)
+
+        tk.Label(
+            content_frame, 
+            text="Recipe Name:",
+            font=("Helvetica", 12, "bold"),
+            bg=self.config.BG_COLOR,
+            fg=self.config.TEXT_COLOR
+        ).pack(anchor="w", pady=(10, 2))
+
+        recipe_name_entry = tk.Entry(content_frame, font=("Helvetica", 12), width=30)
+        recipe_name_entry.pack(anchor="w", pady=(0, 10), fill=tk.X)
+
+        tk.Label(
+            content_frame, 
+            text="Select Ingredient:",
+            font=("Helvetica", 12, "bold"),
+            bg=self.config.BG_COLOR,
+            fg=self.config.TEXT_COLOR
+        ).pack(anchor="w", pady=(10, 2))
+
+        inventory_items = [item["itemName"] for item in StaffController().inventory_ref.get().values()]
+        ingredient_var = tk.StringVar()
+        ingredient_dropdown = ttk.Combobox(content_frame, textvariable=ingredient_var, values=inventory_items)
+        ingredient_dropdown.pack(anchor="w", pady=(0, 10), fill=tk.X)
+
+        tk.Label(
+            content_frame, 
+            text="Quantity:",
+            font=("Helvetica", 12, "bold"),
+            bg=self.config.BG_COLOR,
+            fg=self.config.TEXT_COLOR
+        ).pack(anchor="w", pady=(10, 2))
+        
+        quantity_var = tk.StringVar()
+        quantity_entry = tk.Entry(content_frame, textvariable=quantity_var, font=("Helvetica", 12), width=30)
+        quantity_entry.pack(anchor="w", pady=(0, 10), fill=tk.X)
+
+        ingredients_list = tk.Listbox(content_frame, height=5)
+        ingredients_list.pack(pady=(10, 5), fill=tk.BOTH, expand=True)
+
+        recipe_ingredients = {}  # Dictionary to store ingredients
+
         def add_ingredient():
             selected_item = ingredient_var.get()
             quantity = quantity_var.get()
@@ -103,7 +161,7 @@ class RecipePage(tk.Frame):
                 messagebox.showerror("Error", "Please select an ingredient and enter a valid quantity.")
 
         def save_recipe():
-            recipe_name = recipe_name_var.get().strip()
+            recipe_name = recipe_name_entry.get().strip()
             if not recipe_name or not recipe_ingredients:
                 messagebox.showerror("Error", "Recipe name and ingredients are required.")
                 return
@@ -114,41 +172,39 @@ class RecipePage(tk.Frame):
             dialog.destroy()
             self.load_recipe_data()
 
-        dialog = tk.Toplevel(self)
-        dialog.title("Add Recipe")
-        self.center_window(dialog, 400, 400)
-
-        tk.Label(dialog, text="Recipe Name:").pack(pady=5)
-        recipe_name_var = tk.StringVar()
-        tk.Entry(dialog, textvariable=recipe_name_var).pack(pady=5)
-
-        tk.Label(dialog, text="Select Ingredient:").pack(pady=5)
-        inventory_items = [item["itemName"] for item in StaffController().inventory_ref.get().values()]
-        ingredient_var = tk.StringVar()
-        ingredient_dropdown = ttk.Combobox(dialog, textvariable=ingredient_var, values=inventory_items)
-        ingredient_dropdown.pack(pady=5)
+        button_frame = tk.Frame(content_frame, bg=self.config.BG_COLOR)
+        button_frame.pack(fill=tk.X, pady=10)
         
-        tk.Label(dialog, text="Quantity:").pack(pady=5)
-        quantity_var = tk.StringVar()
-        tk.Entry(dialog, textvariable=quantity_var).pack(pady=5)
+        add_ingredient_button = tk.Button(
+            button_frame, 
+            text="Add Ingredient", 
+            command=add_ingredient,
+            **self.config.BUTTON_STYLES["primary"]
+        )
+        add_ingredient_button.pack(side=tk.LEFT, padx=5)
         
-        tk.Button(dialog, text="Add Ingredient", command=add_ingredient).pack(pady=5)
+        save_button = tk.Button(
+            button_frame, 
+            text="Save Recipe", 
+            command=save_recipe,
+            **self.config.BUTTON_STYLES["primary"]
+        )
+        save_button.pack(side=tk.RIGHT, padx=5)
         
-        ingredients_list = tk.Listbox(dialog, height=5)
-        ingredients_list.pack(pady=5, fill=tk.BOTH, expand=True)
-        
-        recipe_ingredients = {}
-        tk.Button(dialog, text="Save Recipe", command=save_recipe).pack(pady=10)
+        cancel_button = tk.Button(
+            content_frame, 
+            text="Cancel", 
+            command=dialog.destroy, 
+            **self.config.BUTTON_STYLES["secondary"]
+        )
+        cancel_button.pack(pady=5)
 
 
     def center_window(self, window, width, height):
-        # Get screen width and height
         screen_width = window.winfo_screenwidth()
         screen_height = window.winfo_screenheight()
         
-        # Calculate position
         x = (screen_width - width) // 2
         y = (screen_height - height) // 2
         
-        # Set the position
         window.geometry(f"{width}x{height}+{x}+{y}")

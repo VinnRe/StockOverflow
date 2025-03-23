@@ -32,6 +32,9 @@ class StockOverflowApp(tk.Tk):
         cred = credentials.Certificate("key.json")  # Update path
         db = firebase_admin.initialize_app(cred, {"databaseURL": DB_URL})
 
+        icon_path = os.path.join(os.path.dirname(__file__), "so_ico.png")
+        self.iconphoto(False, tk.PhotoImage(file=icon_path))
+
         # Main app setup
         self.title(self.config.APP_NAME)
         self.geometry("1000x750")  # Increased window size for better visibility

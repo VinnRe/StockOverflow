@@ -20,11 +20,9 @@ class OrderPage(tk.Frame):
         self.load_orders()
 
     def create_ui(self):
-        # Create header
         header = tk.Frame(self, bg=self.config.BG_COLOR)
         header.pack(fill=tk.X, pady=5)
         
-        # Title
         title_label = tk.Label(
             header, 
             text="Order Management",
@@ -53,37 +51,30 @@ class OrderPage(tk.Frame):
         )
         self.receive_btn.pack(side=tk.RIGHT, padx=5)
 
-        # Create orders table
         table_frame = tk.Frame(self, bg=self.config.BG_COLOR)
         table_frame.pack(fill=tk.BOTH, expand=True, pady=10)
         
-        # Create a treeview for the orders
         columns = ("ID", "Date", "Items", "Status")
         self.orders_tree = ttk.Treeview(table_frame, columns=columns, show="headings")
         
-        # Configure columns
         self.orders_tree.heading("ID", text="ID")
         self.orders_tree.heading("Date", text="Date")
         self.orders_tree.heading("Items", text="Items")
         self.orders_tree.heading("Status", text="Status")
         
-        # Configure column widths
         self.orders_tree.column("ID", width=50)
         self.orders_tree.column("Date", width=100)
         self.orders_tree.column("Items", width=200)
         self.orders_tree.column("Status", width=100)
         
-        # Add scrollbar
         scrollbar = ttk.Scrollbar(table_frame, orient=tk.VERTICAL, command=self.orders_tree.yview)
         self.orders_tree.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.orders_tree.pack(fill=tk.BOTH, expand=True)
 
-        # Bind row selection event to enable button
         self.orders_tree.bind("<<TreeviewSelect>>", self.on_row_selected)
         
     def load_orders(self):
-        """Fetch and display orders in the table."""
         order_controller = OrderController()
         orders = order_controller.get_all_orders()
         self.orders_tree.delete(*self.orders_tree.get_children())
@@ -110,11 +101,11 @@ class OrderPage(tk.Frame):
             print(f"Order ID: {order_id}, Date: {order_date}, Items: {formatted_content}, Status: {order_status}")
 
     def on_row_selected(self, event):
-        """Enable the Receive Order button only if a row is selected and not received."""
+        # Enable the Receive Order button only if a row is selected and not received
         selected_item = self.orders_tree.selection()
         
         if selected_item:
-            order_status = self.orders_tree.item(selected_item, "values")[3]  # Get the status column value
+            order_status = self.orders_tree.item(selected_item, "values")[3]
             
             if order_status == "Received":
                 self.receive_btn.config(state=tk.DISABLED)
@@ -124,7 +115,7 @@ class OrderPage(tk.Frame):
             self.receive_btn.config(state=tk.DISABLED)
 
     def receive_selected_order(self):
-        """Receives the selected order and updates the status."""
+        # Receives the selected order and updates the status
         selected_item = self.orders_tree.selection()
         if not selected_item:
             messagebox.showwarning("No Selection", "Please select an order first.")
@@ -145,57 +136,110 @@ class OrderPage(tk.Frame):
         self.receive_btn.config(state=tk.DISABLED)
 
     def create_new_order(self):
-        """Open a dialog box to enter order details and place an order."""
         dialog = tk.Toplevel(self)
         dialog.title("New Order")
-        dialog.geometry("300x200")
-        self.center_window(dialog, 300, 200)
+        dialog.geometry("400x350")
+        dialog.configure(bg=self.config.BG_COLOR)
+        self.center_window(dialog, 400, 350)
+
+        header_frame = tk.Frame(dialog, bg=self.config.PRIMARY_COLOR, height=40)
+        header_frame.pack(fill=tk.X)
         
-        tk.Label(dialog, text="Ingredient Name:").pack()
-        ingredient_entry = tk.Entry(dialog)
-        ingredient_entry.pack()
+        header_label = tk.Label(
+            header_frame, 
+            text="Place New Order", 
+            font=("Helvetica", 16, "bold"),
+            bg=self.config.PRIMARY_COLOR,
+            fg="white"
+        )
+        header_label.pack(pady=8)
+
+        content_frame = tk.Frame(dialog, bg=self.config.BG_COLOR, padx=20, pady=20)
+        content_frame.pack(fill=tk.BOTH, expand=True)
+
+        tk.Label(
+            content_frame, 
+            text="Ingredient Name:", 
+            font=("Helvetica", 12, "bold"),
+            bg=self.config.BG_COLOR,
+            fg=self.config.TEXT_COLOR
+        ).pack(anchor="w", pady=(10, 2))
         
-        tk.Label(dialog, text="Quantity:").pack()
-        quantity_entry = tk.Entry(dialog)
-        quantity_entry.pack()
+        ingredient_entry = tk.Entry(content_frame, font=("Helvetica", 12), width=30)
+        ingredient_entry.pack(anchor="w", pady=(0, 10), fill=tk.X)
+
+        tk.Label(
+            content_frame, 
+            text="Quantity:", 
+            font=("Helvetica", 12, "bold"),
+            bg=self.config.BG_COLOR,
+            fg=self.config.TEXT_COLOR
+        ).pack(anchor="w", pady=(10, 2))
         
-        tk.Label(dialog, text="Expiration Date (YYYY-MM-DD):").pack()
-        expiry_entry = tk.Entry(dialog)
-        expiry_entry.pack()
+        quantity_entry = tk.Entry(content_frame, font=("Helvetica", 12), width=30)
+        quantity_entry.pack(anchor="w", pady=(0, 10), fill=tk.X)
+
+        tk.Label(
+            content_frame, 
+            text="Expiration Date (YYYY-MM-DD):", 
+            font=("Helvetica", 12, "bold"),
+            bg=self.config.BG_COLOR,
+            fg=self.config.TEXT_COLOR
+        ).pack(anchor="w", pady=(10, 2))
         
+        expiry_entry = tk.Entry(content_frame, font=("Helvetica", 12), width=30)
+        expiry_entry.pack(anchor="w", pady=(0, 10), fill=tk.X)
+
         def submit_order():
             ingredient = ingredient_entry.get().strip()
             quantity = quantity_entry.get().strip()
             expiry_date = expiry_entry.get().strip()
-            
+
             if not ingredient or not quantity or not expiry_date:
                 messagebox.showerror("Error", "All fields are required!")
                 return
-            
+
             try:
                 quantity = int(quantity)
                 datetime.strptime(expiry_date, "%Y-%m-%d") 
             except ValueError:
                 messagebox.showerror("Error", "Invalid quantity or date format!")
                 return
-            
+
             order_content = {ingredient: {"quantity": quantity, "expiry_date": expiry_date}}
             order = Order(order_content, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-            
+
             order_controller = OrderController()
             order_controller.place_order(order)
-            
+
             messagebox.showinfo("Success", "Order placed successfully!")
             dialog.destroy()
             self.load_orders()
-        
-        submit_btn = tk.Button(dialog, text="Place Order", command=submit_order)
-        submit_btn.pack(pady=10)
+
+        button_frame = tk.Frame(content_frame, bg=self.config.BG_COLOR)
+        button_frame.pack(fill=tk.X, pady=15)
+
+        submit_button = tk.Button(
+            button_frame, 
+            text="Place Order", 
+            command=submit_order, 
+            **self.config.BUTTON_STYLES["primary"]
+        )
+        submit_button.pack(side=tk.LEFT, padx=5)
+
+        cancel_button = tk.Button(
+            button_frame, 
+            text="Cancel", 
+            command=dialog.destroy, 
+            **self.config.BUTTON_STYLES["secondary"]
+        )
+        cancel_button.pack(side=tk.RIGHT, padx=5)
 
     def center_window(self, window, width, height):
-        """Centers a window on the screen."""
         screen_width = window.winfo_screenwidth()
         screen_height = window.winfo_screenheight()
+
         x = (screen_width - width) // 2
         y = (screen_height - height) // 2
+
         window.geometry(f"{width}x{height}+{x}+{y}")
