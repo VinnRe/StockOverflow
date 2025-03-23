@@ -37,7 +37,7 @@ class StockOverflowApp(tk.Tk):
         self.configure(bg=self.config.BG_COLOR)
         
         # Current user (mock for now)
-        self.current_user = {"username": "staff", "role": "Staff"}
+        self.current_user = {"username": "Staff", "role": "Staff"}
         
         # Initialize UI components
         self.create_custom_fonts()
@@ -117,7 +117,7 @@ class StockOverflowApp(tk.Tk):
             "bg": AppConfig.PRIMARY_COLOR,
             "fg": "white",
             "font": self.button_font,
-            "relief": tk.RAISED,  # Changed from GROOVE to RAISED for better 3D effect
+            "relief": tk.RAISED,
             "bd": 2,
             "padx": 20,
             "pady": 10,
@@ -125,14 +125,14 @@ class StockOverflowApp(tk.Tk):
             "highlightbackground": "green",
             "highlightcolor": "green",
             "highlightthickness": 2,
-            "cursor": "hand2"  # Add hand cursor for better UX
+            "cursor": "hand2" 
         }
         
         self.red_button_style = {
             "bg": AppConfig.SECONDARY_COLOR,
             "fg": "white",
             "font": self.button_font,
-            "relief": tk.RAISED,  # Changed from GROOVE to RAISED
+            "relief": tk.RAISED,
             "bd": 2,
             "padx": 20,
             "pady": 10,
@@ -140,7 +140,7 @@ class StockOverflowApp(tk.Tk):
             "highlightbackground": "darkred",
             "highlightcolor": "darkred",
             "highlightthickness": 2,
-            "cursor": "hand2"  # Add hand cursor
+            "cursor": "hand2"
         }
 
         self.recipes_btn = tk.Button(
@@ -248,11 +248,12 @@ class StockOverflowApp(tk.Tk):
             # Update user label in header
             self.user_label.config(text=f"User: staff (Staff)")
 
-            # Remove Inventory and Orders buttons if they exist
             if self.inventory_btn:
-                self.inventory_btn.grid_forget()
+                self.inventory_btn.destroy()
+                self.inventory_btn = None
             if self.orders_btn:
-                self.orders_btn.grid_forget()
+                self.orders_btn.destroy()
+                self.orders_btn = None
 
             self.show_recipes()
 
@@ -312,10 +313,8 @@ class StockOverflowApp(tk.Tk):
         dialog.transient(self)
         dialog.grab_set()
 
-        # Create an instance of Admin
         self.admin = Admin()
 
-        # Center the dialog on the screen
         self.center_window(dialog, 400, 350)
         
         # Add header
@@ -346,7 +345,7 @@ class StockOverflowApp(tk.Tk):
         
         username_entry = tk.Entry(content_frame, font=("Helvetica", 12), width=30)
         username_entry.pack(anchor="w", pady=(0, 10), fill=tk.X)
-        username_entry.focus_set()  # Set focus to username field
+        username_entry.focus_set()
 
         # Add password label and entry field
         tk.Label(
@@ -360,11 +359,9 @@ class StockOverflowApp(tk.Tk):
         password_entry = tk.Entry(content_frame, show="*", font=("Helvetica", 12), width=30)
         password_entry.pack(anchor="w", pady=(0, 10), fill=tk.X)
 
-        # Button frame
         button_frame = tk.Frame(content_frame, bg=self.config.BG_COLOR)
         button_frame.pack(fill=tk.X, pady=20)
 
-        # Login button
         login_btn = tk.Button(
             button_frame, 
             text="Login",
@@ -373,7 +370,6 @@ class StockOverflowApp(tk.Tk):
         )
         login_btn.pack(side=tk.LEFT, padx=10)
 
-        # Cancel button
         cancel_btn = tk.Button(
             button_frame, 
             text="Cancel",
@@ -382,7 +378,6 @@ class StockOverflowApp(tk.Tk):
         )
         cancel_btn.pack(side=tk.RIGHT, padx=10)
         
-        # Bind Enter key to login
         dialog.bind('<Return>', lambda event: self.handle_login(username_entry.get(), password_entry.get(), dialog))
     
     def center_window(self, window, width, height):
