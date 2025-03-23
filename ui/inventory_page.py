@@ -82,7 +82,6 @@ class InventoryPage(tk.Frame):
         self.tree.bind("<Double-1>", self.on_item_double_click)
     
     def create_legend(self):
-        """Create a legend explaining the color coding in the inventory table"""
         legend_frame = tk.Frame(self, bg=self.config.BG_COLOR, bd=1, relief=tk.GROOVE)
         legend_frame.pack(fill=tk.X, padx=15, pady=5)
         
@@ -155,18 +154,17 @@ class InventoryPage(tk.Frame):
                     item_name = item_details.get("itemName", "N/A")
                     stock = item_details.get("stock", {})
                     total_quantity = item_details.get("totalQuantity", "0")
-                    is_low = item_details.get("is_low", False)  # Get the is_low attribute
-                    near_expiry = item_details.get("near_expiry", False)  # Get the near_expiry attribute
+                    is_low = item_details.get("is_low", False)
+                    near_expiry = item_details.get("near_expiry", False)
 
                     expiry_dates = ", ".join(stock.keys()) if stock else "N/A"
 
-                    # Determine the tag based on conditions
                     if is_low and near_expiry:
-                        tag = "low_and_near"  # Both conditions apply
+                        tag = "low_and_near"
                     elif is_low:
-                        tag = "low_stock"  # Only low stock
+                        tag = "low_stock"
                     elif near_expiry:
-                        tag = "near_expiry"  # Only near expiry
+                        tag = "near_expiry"
                     else:
                         tag = ""
 
@@ -312,7 +310,6 @@ class InventoryPage(tk.Frame):
                         self.load_inventory_data()
                         dialog.destroy()
             
-            # Button frame
             button_frame = tk.Frame(content_frame, bg=self.config.BG_COLOR)
             button_frame.pack(fill=tk.X, pady=15)
             
@@ -348,7 +345,6 @@ class InventoryPage(tk.Frame):
         dialog.configure(bg=self.config.BG_COLOR)
         self.center_window(dialog, 400, 350)
 
-        # Add a header
         header_frame = tk.Frame(dialog, bg=self.config.PRIMARY_COLOR, height=40)
         header_frame.pack(fill=tk.X)
         
@@ -361,7 +357,6 @@ class InventoryPage(tk.Frame):
         )
         header_label.pack(pady=8)
 
-        # Content frame
         content_frame = tk.Frame(dialog, bg=self.config.BG_COLOR, padx=20, pady=20)
         content_frame.pack(fill=tk.BOTH, expand=True)
 
@@ -427,7 +422,6 @@ class InventoryPage(tk.Frame):
             self.inventory_data = FoodInventory().displayItems()
             self.load_inventory_data()
 
-        # Button frame
         button_frame = tk.Frame(content_frame, bg=self.config.BG_COLOR)
         button_frame.pack(fill=tk.X, pady=15)
         
@@ -447,21 +441,7 @@ class InventoryPage(tk.Frame):
         )
         cancel_button.pack(side=tk.RIGHT, padx=5)
 
-    def center_window(self, window, width, height):
-        # Get screen width and height
-        screen_width = window.winfo_screenwidth()
-        screen_height = window.winfo_screenheight()
-        
-        # Calculate position
-        x = (screen_width - width) // 2
-        y = (screen_height - height) // 2
-        
-        # Set the position
-        window.geometry(f"{width}x{height}+{x}+{y}")
-
     def on_column_click(self, column_name):
-        """Change the column header title when clicked and toggle sorting order."""
-
         # Toggle sort order
         self.sort_order[column_name] = not self.sort_order[column_name]
         order_symbol = "▲" if self.sort_order[column_name] else "▼"
@@ -473,6 +453,14 @@ class InventoryPage(tk.Frame):
 
         self.tree.heading(column_name, text=f"{column_name.replace('itemName', 'Item Name').replace('stock', 'Expiry Date').replace('totalQuantity', 'Quantity')} {order_symbol}")
 
-        # print(self.sort_order)
         self.inventory_data = FoodInventory().displayItems(column_name, self.sort_order[column_name])
         self.load_inventory_data()
+
+    def center_window(self, window, width, height):
+        screen_width = window.winfo_screenwidth()
+        screen_height = window.winfo_screenheight()
+        
+        x = (screen_width - width) // 2
+        y = (screen_height - height) // 2
+        
+        window.geometry(f"{width}x{height}+{x}+{y}")
