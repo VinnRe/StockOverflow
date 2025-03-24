@@ -104,8 +104,30 @@ The link below leads to the documentation of the system. It will provide the rea
 
 ## 🖼️ Screenshots 🖼️
 
-![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
+### Staff View
+<p align="center">
+  <img src="https://github.com/VinnRe/StockOverflow/blob/beta-main/images/StockOverflow/staffview_recipe.png" alt="Staff View Main">
+  <img src="https://github.com/VinnRe/StockOverflow/blob/beta-main/images/StockOverflow/staffview_admin_auth.png" alt="Staff View Admin Auth">
+</p>
 
+### Admin View
+<p align="center">
+  <h3>Dashboard</h3>
+  <img src="https://github.com/VinnRe/StockOverflow/blob/beta-main/images/StockOverflow/adminview_dashboard_an.png" alt="Staff View Main">
+  <img src="https://github.com/VinnRe/StockOverflow/blob/beta-main/images/StockOverflow/adminview_dashboard_is.png" alt="Staff View Main">
+  <img src="https://github.com/VinnRe/StockOverflow/blob/beta-main/images/StockOverflow/adminview_dashboard_os.png" alt="Staff View Main">
+  <img src="https://github.com/VinnRe/StockOverflow/blob/beta-main/images/StockOverflow/adminview_dashboard_rc.png" alt="Staff View Main">
+  <h3>Recipe Management</h3>
+  <img src="https://github.com/VinnRe/StockOverflow/blob/beta-main/images/StockOverflow/adminview_recipe_m.png" alt="Staff View Main">
+  <img src="https://github.com/VinnRe/StockOverflow/blob/beta-main/images/StockOverflow/adminview_recipe_ar.png" alt="Staff View Main">
+  <h3>Inventory Management</h3>
+  <img src="https://github.com/VinnRe/StockOverflow/blob/beta-main/images/StockOverflow/adminview_inv_m.png" alt="Staff View Main">
+  <img src="https://github.com/VinnRe/StockOverflow/blob/beta-main/images/StockOverflow/adminview_inv_ai.png" alt="Staff View Main">
+  <img src="https://github.com/VinnRe/StockOverflow/blob/beta-main/images/StockOverflow/adminview_inv_ei.png" alt="Staff View Main">
+  <h3>Order Management</h3>
+  <img src="https://github.com/VinnRe/StockOverflow/blob/beta-main/images/StockOverflow/adminview_order_m.png" alt="Staff View Main">
+  <img src="https://github.com/VinnRe/StockOverflow/blob/beta-main/images/StockOverflow/adminview_order_no.png" alt="Staff View Main">
+</p>
  
 ## 📁 Environment Variables 📁
 
