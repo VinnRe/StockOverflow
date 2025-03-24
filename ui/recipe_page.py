@@ -28,6 +28,8 @@ class RecipePage(tk.Frame):
         if self.current_user["role"] == "Admin":
             add_btn = tk.Button(header, text="Add Recipe", command=self.add_recipe, **self.config.BUTTON_STYLES["primary"])
             add_btn.pack(side=tk.RIGHT, padx=5)
+            self.delete_btn = tk.Button(header, text="Delete Recipe", command=self.delete_recipe, state=tk.DISABLED, **self.config.BUTTON_STYLES["secondary"])
+            self.delete_btn.pack(side=tk.RIGHT, padx=5)
         
         table_frame = tk.Frame(self, bg=self.config.BG_COLOR)
         table_frame.pack(fill=tk.BOTH, expand=True, pady=10)
@@ -73,9 +75,13 @@ class RecipePage(tk.Frame):
         if selected:
             self.selected_recipe_id = self.recipes_tree.item(selected, "tags")[0]
             self.make_button.config(state=tk.NORMAL)
+            if hasattr(self, 'delete_btn'):
+                self.delete_btn.config(state=tk.NORMAL)  # ✅ Enable delete button
         else:
             self.selected_recipe_id = None
             self.make_button.config(state=tk.DISABLED)
+            if hasattr(self, 'delete_btn'):
+                self.delete_btn.config(state=tk.DISABLED)  # ✅ Disable delete button
 
     def make_recipe(self):
         if not self.selected_recipe_id:
@@ -207,4 +213,24 @@ class RecipePage(tk.Frame):
         x = (screen_width - width) // 2
         y = (screen_height - height) // 2
         
+        # Set the position
         window.geometry(f"{width}x{height}+{x}+{y}")
+
+    def delete_recipe(self):
+        if not self.selected_recipe_id:
+            messagebox.showerror("Error", "No recipe selected.")
+            return
+
+        confirm = messagebox.askyesno("Delete Recipe", "Are you sure you want to delete this recipe?")
+        if not confirm:
+            return
+
+        is_deleted = StaffController().deleteRecipe(self.selected_recipe_id)
+        if is_deleted:
+            messagebox.showinfo("Success", "Recipe deleted successfully.")
+            self.load_recipe_data()  # Refresh table
+            self.selected_recipe_id = None  # Reset selection
+            if hasattr(self, 'delete_btn'):
+                self.delete_btn.config(state=tk.DISABLED)  # ✅ Disable delete button
+        else:
+            messagebox.showerror("Error", "Failed to delete recipe.")

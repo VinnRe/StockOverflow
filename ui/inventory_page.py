@@ -40,6 +40,15 @@ class InventoryPage(tk.Frame):
         
         # Add item button (only for Admin)
         if self.current_user["role"] == "Admin":
+            self.edit_btn = tk.Button(
+                header, 
+                text="Edit Item",
+                command=self.on_edit_button_click,
+                **self.config.BUTTON_STYLES["primary"],
+                state=tk.DISABLED
+            )
+            self.edit_btn.pack(side=tk.RIGHT, padx=15)
+
             add_btn = tk.Button(
                 header, 
                 text="Add Item",
@@ -78,8 +87,22 @@ class InventoryPage(tk.Frame):
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.tree.pack(fill=tk.BOTH, expand=True)
 
-        # Bind double-click event to open item details
-        self.tree.bind("<Double-1>", self.on_item_double_click)
+        # Bind selection event to enable/disable Edit button
+        self.tree.bind("<<TreeviewSelect>>", self.on_treeview_select)
+
+    def on_treeview_select(self, event):
+        """Enable the Edit button if a row is selected, otherwise disable it."""
+        selected_item = self.tree.selection()
+        if selected_item:
+            self.edit_btn.config(state=tk.NORMAL)
+        else:
+            self.edit_btn.config(state=tk.DISABLED)
+    
+    def on_edit_button_click(self):
+        """Trigger the same functionality as double-clicking a row."""
+        selected_item = self.tree.selection()
+        if selected_item:
+            self.on_item_double_click(None)
     
     def create_legend(self):
         legend_frame = tk.Frame(self, bg=self.config.BG_COLOR, bd=1, relief=tk.GROOVE)
