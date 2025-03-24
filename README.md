@@ -110,6 +110,8 @@ The link below leads to the documentation of the system. It will provide the rea
   <img src="https://github.com/VinnRe/StockOverflow/blob/beta-main/images/StockOverflow/staffview_admin_auth.png" alt="Staff View Admin Auth">
 </p>
 
+---
+
 ### Admin View
 <p align="center">
   <h3>Dashboard</h3>
