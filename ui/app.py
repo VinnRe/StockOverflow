@@ -284,13 +284,13 @@ class StockOverflowApp(tk.Tk):
     def handle_logout(self):
         if self.current_user.get("role") == "Admin":
             self.admin.logout()
-            self.current_user = {"username": "staff", "role": "Staff"}
+            self.current_user = {"username": "Staff", "role": "Staff"}
             messagebox.showinfo("Success", "Logged out successfully.")
 
             self.profile_btn.config(text="Admin Access", command=self.switch_profile)
         
             # Update user label in header
-            self.user_label.config(text=f"User: staff (Staff)")
+            self.user_label.config(text=f"User: Staff (Staff)")
 
             # Remove admin-only buttons
             if self.dashboard_btn:
