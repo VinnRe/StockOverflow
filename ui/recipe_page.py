@@ -224,10 +224,10 @@ class RecipePage(tk.Frame):
         is_deleted = StaffController().deleteRecipe(self.selected_recipe_id)
         if is_deleted:
             messagebox.showinfo("Success", "Recipe deleted successfully.")
-            self.load_recipe_data()  # Refresh table
-            self.selected_recipe_id = None  # Reset selection
+            self.load_recipe_data()
+            self.selected_recipe_id = None
             if hasattr(self, 'delete_btn'):
-                self.delete_btn.config(state=tk.DISABLED)  # ✅ Disable delete button
+                self.delete_btn.config(state=tk.DISABLED)
         else:
             messagebox.showerror("Error", "Failed to delete recipe.")
 
