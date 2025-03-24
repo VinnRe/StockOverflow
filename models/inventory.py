@@ -1,15 +1,14 @@
 class InventoryItem:
     def __init__(self, itemName, stock):
-        """
-        :param itemName: Name of the inventory item
-        :param stock: Dictionary where keys are expiry dates and values are quantities
-                      Example: {"2025-06-19": 20, "2025-06-28": 30}
-        """
+        # Initialize item name and stock with expiry-date mapping
         self.itemName = itemName
-        self.stock = stock  # Expiry-date mapping
-        self.totalQuantity = sum(stock.values())  # Calculate total quantity dynamically
+        self.stock = stock  
+        
+        # Calculate total quantity based on stock values
+        self.totalQuantity = sum(stock.values())
 
     def to_dict(self):
+        # Convert object properties to a dictionary
         return {
             "itemName": self.itemName,
             "stock": self.stock,

@@ -1,13 +1,15 @@
 from firebase_admin import db
+import datetime
 
 class StaffController:
     def __init__(self):
+        # Initialize database references
         self.ref = db.reference('db')
         self.recipes_ref = self.ref.child('recipes')
         self.inventory_ref = self.ref.child('inventory')
         
     def addRecipe(self, recipe):
-        """Add a new recipe to the database."""
+        # Add a new recipe to the database
         try:
             new_ref = self.recipes_ref.push(recipe)
             print(f"Added new recipe: {recipe['recipeName']}")
@@ -17,7 +19,7 @@ class StaffController:
             return None
     
     def viewAllRecipes(self):
-        """Retrieve and display all recipes."""
+        # Retrieve all recipes from the database
         try:
             recipes = self.recipes_ref.get()
             if not recipes:
@@ -39,17 +41,17 @@ class StaffController:
             return []
 
     def orderRecipe(self, recipeId):
-        """Order a recipe by checking inventory, validating expiration dates, and updating stock."""
+        # Process a recipe order by checking inventory and updating stock
         try:
-            import datetime
-            
             recipe = self.recipes_ref.child(recipeId).get()
             if not recipe:
                 print(f"No recipe found with ID: {recipeId}")
                 return False
             
             ingredients = recipe.get("ingredients", {})
+            
             for itemName, requiredQty in ingredients.items():
+                # Retrieve item stock from inventory
                 items = self.inventory_ref.order_by_child("itemName").equal_to(itemName).get()
                 if not items:
                     print(f"Insufficient stock for {itemName}")
@@ -58,11 +60,12 @@ class StaffController:
                 for item_id, item_data in items.items():
                     stock = item_data.get("stock", {})
                     totalQuantity = item_data.get("totalQuantity", 0)
+                    
                     if totalQuantity < requiredQty:
                         print(f"Not enough {itemName} in stock.")
                         return False
                     
-                    # Deduct stock based on expiry date order, ignoring expired items
+                    # Deduct stock based on expiry date, ignoring expired items
                     sorted_stock = sorted(stock.items(), key=lambda x: x[0])
                     deducted = 0
                     today = datetime.date.today().isoformat()
@@ -84,7 +87,7 @@ class StaffController:
                         print(f"Not enough non-expired {itemName} in stock.")
                         return False
                     
-                    # Update Firebase
+                    # Update inventory in Firebase
                     totalQuantity -= requiredQty
                     self.inventory_ref.child(item_id).update({
                         "stock": stock,
@@ -98,6 +101,7 @@ class StaffController:
             return False
 
     def deleteRecipe(self, recipeId):
+        # Delete a recipe from the database
         try:
             recipe = self.recipes_ref.child(recipeId).get()
             if not recipe:
@@ -110,6 +114,7 @@ class StaffController:
             return False
 
     def updateRecipe(self, recipeId, recipeName, new_recipe):
+        # Update an existing recipe in the database
         try:
             recipe = self.recipes_ref.child(recipeId).get()
             if not recipe:
@@ -121,5 +126,5 @@ class StaffController:
             })
             return True
         except Exception as e:
-            print(f"Error deleting recipe: {e}")
+            print(f"Error updating recipe: {e}")
             return False
