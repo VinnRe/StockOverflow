@@ -32,7 +32,6 @@ class OrderPage(tk.Frame):
         )
         title_label.pack(side=tk.LEFT, padx=5)
         
-        # Add order button
         add_btn = tk.Button(
             header, 
             text="New Order",
@@ -41,7 +40,6 @@ class OrderPage(tk.Frame):
         )
         add_btn.pack(side=tk.RIGHT, padx=5)
 
-        # Receive Order Button (Initially Disabled)
         self.receive_btn = tk.Button(
             header,
             text="Receive Order",
@@ -115,7 +113,6 @@ class OrderPage(tk.Frame):
             self.receive_btn.config(state=tk.DISABLED)
 
     def receive_selected_order(self):
-        # Receives the selected order and updates the status
         selected_item = self.orders_tree.selection()
         if not selected_item:
             messagebox.showwarning("No Selection", "Please select an order first.")

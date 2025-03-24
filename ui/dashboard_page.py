@@ -25,7 +25,6 @@ class DashboardPage(tk.Frame):
         self.winfo_toplevel().protocol("WM_DELETE_WINDOW", self.on_close)
     
     def create_ui(self):
-        # Header
         header = tk.Frame(self, bg=self.config.BG_COLOR)
         header.pack(fill=tk.X, pady=10)
         
@@ -60,17 +59,15 @@ class DashboardPage(tk.Frame):
         self.content_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
         
         # Configure grid layout for buttons and cards
-        self.content_frame.columnconfigure(0, weight=0)  # Buttons on the left (fixed width)
-        self.content_frame.columnconfigure(1, weight=1)  # Cards on the right (expandable)
+        self.content_frame.columnconfigure(0, weight=0)
+        self.content_frame.columnconfigure(1, weight=1)
         
-        # Side Menu Buttons (Left Column)
+        # Side Menu Buttons
         button_frame = tk.Frame(self.content_frame, bg=self.config.BG_COLOR)
         button_frame.grid(row=0, column=0, sticky="ns", padx=10)
 
-        # Button Styling
         button_options = self.config.BUTTON_STYLES["primary"]
 
-        # Define buttons
         buttons = [
             ("Alerts & Notifications", "alert"),
             ("Inventory Summary", "inventory"),
@@ -78,7 +75,6 @@ class DashboardPage(tk.Frame):
             ("Order Summary", "order"),
         ]
 
-        # Create buttons
         for i, (label, key) in enumerate(buttons):
             tk.Button(
                 button_frame,
@@ -87,7 +83,7 @@ class DashboardPage(tk.Frame):
                 **button_options
             ).grid(row=i, column=0, padx=10, pady=5, sticky="ew")
 
-        # Summary Cards (Right Column)
+        # Summary Cards
         self.cards = {
             "alert": self.create_summary_card(self.content_frame, "Alerts & Notifications"),
             "inventory": self.create_summary_card(self.content_frame, "Inventory Summary"),
@@ -98,19 +94,16 @@ class DashboardPage(tk.Frame):
         self.show_frame("alert")
 
     def show_frame(self, frame_key):
-        """ Show only the selected card, hide others. """
-        for key, (card, _) in self.cards.items():  # ✅ Unpack tuple to get the card frame
+        for key, (card, _) in self.cards.items():
             if key == frame_key:
                 card.grid(row=0, column=1, padx=20, pady=10, sticky="nsew")
             else:
                 card.grid_remove()
 
     def create_summary_card(self, parent, title):
-        """ Create a summary card frame with a scrollable content area. """
         card = tk.Frame(parent, bg="white", bd=2, relief=tk.RAISED)
         card.grid(row=0, column=1, sticky="nsew")
 
-        # Title Section
         header = tk.Frame(card, bg=self.config.PRIMARY_COLOR, height=40)
         header.pack(fill=tk.X)
 
@@ -123,60 +116,44 @@ class DashboardPage(tk.Frame):
         )
         title_label.pack(pady=10)
 
-        # Scrollable Content Area
         container = tk.Frame(card, bg="white")
         container.pack(fill=tk.BOTH, expand=True)
 
         canvas = tk.Canvas(container, bg="white", highlightthickness=0)
         scrollbar = tk.Scrollbar(container, orient="vertical", command=canvas.yview)
         
-        # ✅ Centering `scrollable_frame`
         scrollable_frame = tk.Frame(canvas, bg="white")
 
-        # ✅ Dynamically set width of `scrollable_frame` to match `container`
         def update_frame_width(event):
             canvas.itemconfig(window_id, width=event.width - 15)
 
-        # ✅ Create the window and store its ID
-        window_id = canvas.create_window((0, 0), window=scrollable_frame, anchor="n")  # Anchor to top for centering
+        window_id = canvas.create_window((0, 0), window=scrollable_frame, anchor="n")
 
-        # ✅ Update width dynamically
         container.bind("<Configure>", update_frame_width)
 
-        # Bind scrollbar to canvas
         scrollable_frame.bind(
             "<Configure>",
             lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
         )
         canvas.configure(yscrollcommand=scrollbar.set)
 
-        # Layout
         canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
         return card, scrollable_frame
 
     def load_dashboard_data(self):
-        # Update timestamp
         self.timestamp_label.config(text=f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         
-        # Load inventory summary
         self.load_inventory_summary()
-        
-        # Load recipe summary
         self.load_recipe_summary()
-        
-        # Load order summary
         self.load_order_summary()
-        
-        # Load alerts
         self.load_alerts()
         
     def load_inventory_summary(self):
         try:
             inventory_data = FoodInventory().displayItems()
 
-            # Count total items, low stock items, and near expiry items
             total_items = len(inventory_data)
             low_stock_count = 0
             near_expiry_count = 0
@@ -196,18 +173,14 @@ class DashboardPage(tk.Frame):
                     else:
                         normal_count += 1
 
-            # ✅ Get the scrollable frame inside the inventory card
             inventory_card, inventory_content = self.cards["inventory"]
 
-            # Clear previous content
             for widget in inventory_content.winfo_children():
                 widget.destroy()
 
-            # Create summary section inside the scrollable frame
             summary_frame = tk.Frame(inventory_content, bg="white")
             summary_frame.pack(fill=tk.X, padx=5, pady=10)
 
-            # Create summary labels with better spacing
             tk.Label(
                 summary_frame,
                 text=f"Total Items: {total_items}",
@@ -238,13 +211,12 @@ class DashboardPage(tk.Frame):
                 fg="orange" if near_expiry_count > 0 else "black"
             ).pack(anchor="w", pady=5)
 
-            # Add separator
             separator = ttk.Separator(inventory_content, orient="horizontal")
             separator.pack(fill=tk.X, padx=15, pady=10)
 
         except Exception as e:
             tk.Label(
-                inventory_content,  # ✅ Use the scrollable frame for error messages
+                inventory_content,
                 text=f"Error loading inventory data: {str(e)}",
                 font=("Helvetica", 12),
                 bg="white",
@@ -255,17 +227,13 @@ class DashboardPage(tk.Frame):
         try:
             recipes = StaffController().viewAllRecipes()
 
-            # Count total recipes
             total_recipes = len(recipes)
 
-            # ✅ Get the scrollable frame inside the recipe card
             recipe_card, recipe_content = self.cards["recipe"]
 
-            # Clear previous content
             for widget in recipe_content.winfo_children():
                 widget.destroy()
 
-            # Create summary labels inside the scrollable frame
             summary_frame = tk.Frame(recipe_content, bg="white")
             summary_frame.pack(fill=tk.X, padx=5, pady=10)
 
@@ -276,11 +244,9 @@ class DashboardPage(tk.Frame):
                 bg="white"
             ).pack(anchor="w", pady=5)
 
-            # Add separator
             separator = ttk.Separator(recipe_content, orient="horizontal")
             separator.pack(fill=tk.X, padx=15, pady=10)
 
-            # List most recent recipes
             recent_label = tk.Label(
                 recipe_content,
                 text="Recent Recipes:",
@@ -293,22 +259,19 @@ class DashboardPage(tk.Frame):
             recipe_list_frame.pack(fill=tk.X, padx=10, pady=5)
 
             if recipes:
-                # Track ingredient counts for chart
                 ingredient_counts = {}
 
-                for i, recipe_entry in enumerate(recipes[:8]):  # Show up to 8 recipes
+                for i, recipe_entry in enumerate(recipes[:8]):
                     for recipe_id, recipe_data in recipe_entry.items():
                         recipe_name = recipe_data.get("recipeName", "Unknown Recipe")
                         ingredients = recipe_data.get("ingredients", {})
 
-                        # Update ingredient counts for chart
                         for ingredient in ingredients:
                             if ingredient in ingredient_counts:
                                 ingredient_counts[ingredient] += 1
                             else:
                                 ingredient_counts[ingredient] = 1
 
-                        # Create recipe item frame with border
                         recipe_item = tk.Frame(
                             recipe_list_frame, 
                             bg="white", 
@@ -326,7 +289,6 @@ class DashboardPage(tk.Frame):
                             bg="white"
                         ).pack(anchor="w")
 
-                        # Show ingredients
                         ingredients_text = ", ".join(list(ingredients.keys())[:3])
                         if len(ingredients) > 3:
                             ingredients_text += f" and {len(ingredients) - 3} more"
@@ -339,9 +301,7 @@ class DashboardPage(tk.Frame):
                             fg="grey"
                         ).pack(anchor="w")
 
-                # Add ingredient usage chart if we have data
                 if ingredient_counts:
-                    # Add separator
                     separator2 = ttk.Separator(recipe_content, orient="horizontal")
                     separator2.pack(fill=tk.X, padx=15, pady=10)
 
@@ -353,26 +313,22 @@ class DashboardPage(tk.Frame):
                     )
                     chart_label.pack(anchor="w", padx=5, pady=5)
 
-                    # Sort ingredients by usage and take top 5
                     top_ingredients = sorted(ingredient_counts.items(), key=lambda x: x[1], reverse=True)[:5]
 
                     if top_ingredients:
                         ingredients, counts = zip(*top_ingredients)
 
-                        # Create bar chart
                         fig, ax = plt.subplots(figsize=(4, 3), dpi=100)
 
-                        # Shorten long ingredient names
                         short_names = [name[:12] + '...' if len(name) > 12 else name for name in ingredients]
 
                         bars = ax.bar(short_names, counts, color=self.config.PRIMARY_COLOR)
 
-                        # Add count values on top of bars
                         for bar in bars:
                             height = bar.get_height()
                             ax.annotate(f'{height}',
                                         xy=(bar.get_x() + bar.get_width() / 2, height),
-                                        xytext=(0, 3),  # 3 points vertical offset
+                                        xytext=(0, 3),
                                         textcoords="offset points",
                                         ha='center', va='bottom',
                                         fontsize=8)
@@ -401,7 +357,7 @@ class DashboardPage(tk.Frame):
 
         except Exception as e:
             tk.Label(
-                recipe_content,  # ✅ Use the scrollable frame for error messages
+                recipe_content,
                 text=f"Error loading recipe data: {str(e)}",
                 font=("Helvetica", 12),
                 bg="white",
@@ -413,21 +369,16 @@ class DashboardPage(tk.Frame):
             order_controller = OrderController()
             orders = order_controller.get_all_orders()
 
-            # ✅ Get the scrollable frame inside the order card
             order_card, order_content = self.cards["order"]
 
-            # Clear previous content
             for widget in order_content.winfo_children():
                 widget.destroy()
 
-            # Summary frame inside scrollable content
             summary_frame = tk.Frame(order_content, bg="white")
             summary_frame.pack(fill=tk.X, padx=5, pady=10)
 
-            # Count total orders and pending orders
             total_orders = len(orders) if orders else 0
 
-            # Count orders by status
             status_counts = {"Pending": 0, "Received": 0, "Other": 0}
             for order_id, order_data in orders.items():
                 status = order_data.get("order_status", "Other")
@@ -436,7 +387,6 @@ class DashboardPage(tk.Frame):
                 else:
                     status_counts["Other"] += 1
 
-            # Create summary labels
             tk.Label(
                 summary_frame,
                 text=f"Total Orders: {total_orders}",
@@ -459,9 +409,7 @@ class DashboardPage(tk.Frame):
                 bg="white"
             ).pack(anchor="w", pady=5)
 
-            # Add order status chart if we have orders
             if total_orders > 0:
-                # Add separator
                 separator = ttk.Separator(order_content, orient="horizontal")
                 separator.pack(fill=tk.X, padx=15, pady=10)
 
@@ -481,7 +429,6 @@ class DashboardPage(tk.Frame):
                 labels = ['Pending', 'Received', 'Other']
                 colors = ['#2196F3', '#4CAF50', '#9E9E9E']
 
-                # Only include non-zero values
                 filtered_data = [(count, label, color) for count, label, color in zip(status_values, labels, colors) if count > 0]
 
                 if filtered_data:
@@ -495,7 +442,6 @@ class DashboardPage(tk.Frame):
                         textprops={'fontsize': 8}
                     )
 
-                    # Equal aspect ratio ensures that pie is drawn as a circle
                     ax.axis('equal')
                     plt.tight_layout()
 
@@ -507,7 +453,6 @@ class DashboardPage(tk.Frame):
                     canvas.draw()
                     canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
-            # Add separator
             separator2 = ttk.Separator(order_content, orient="horizontal")
             separator2.pack(fill=tk.X, padx=15, pady=10)
 
@@ -524,7 +469,6 @@ class DashboardPage(tk.Frame):
                 order_list_frame = tk.Frame(order_content, bg="white")
                 order_list_frame.pack(fill=tk.X, padx=10, pady=5)
 
-                # Convert to list for easier slicing
                 order_items = list(orders.items())
 
                 for i, (order_id, order_data) in enumerate(order_items[:5]):
@@ -533,7 +477,6 @@ class DashboardPage(tk.Frame):
 
                     status_color = "green" if order_status == "Received" else "blue"
 
-                    # Create order item frame with border
                     order_item = tk.Frame(
                         order_list_frame, 
                         bg="white", 
@@ -544,7 +487,6 @@ class DashboardPage(tk.Frame):
                     )
                     order_item.pack(fill=tk.X, pady=5)
 
-                    # Header frame for order ID and status
                     header_frame = tk.Frame(order_item, bg="white")
                     header_frame.pack(fill=tk.X)
 
@@ -563,7 +505,6 @@ class DashboardPage(tk.Frame):
                         fg=status_color
                     ).pack(side=tk.RIGHT)
 
-                    # Date
                     tk.Label(
                         order_item,
                         text=f"Date: {order_date}",
@@ -572,7 +513,6 @@ class DashboardPage(tk.Frame):
                         fg="grey"
                     ).pack(anchor="w")
 
-                    # Order content
                     order_content_data = order_data.get("order_content", {})
                     if order_content_data:
                         items_text = ", ".join(list(order_content_data.keys())[:2])
@@ -587,7 +527,7 @@ class DashboardPage(tk.Frame):
                             fg="grey"
                         ).pack(anchor="w")
 
-                    if i >= 4:  # Only show up to 5 orders
+                    if i >= 4:
                         break
             else:
                 tk.Label(
@@ -599,7 +539,7 @@ class DashboardPage(tk.Frame):
 
         except Exception as e:
             tk.Label(
-                order_content,  # ✅ Use the scrollable frame for error messages
+                order_content,
                 text=f"Error loading order data: {str(e)}",
                 font=("Helvetica", 12),
                 bg="white",
@@ -611,14 +551,11 @@ class DashboardPage(tk.Frame):
             # Get inventory data for alerts
             inventory_data = FoodInventory().displayItems()
 
-            # ✅ Get the scrollable frame inside the alert card
             alert_card, alert_content = self.cards["alert"]
 
-            # Clear previous content
             for widget in alert_content.winfo_children():
                 widget.destroy()
 
-            # Create alerts header inside scrollable content
             header_frame = tk.Frame(alert_content, bg="white")
             header_frame.pack(fill=tk.X, padx=5, pady=10)
 
@@ -629,17 +566,14 @@ class DashboardPage(tk.Frame):
                 bg="white"
             ).pack(anchor="w")
 
-            # Add separator
             separator = ttk.Separator(alert_content, orient="horizontal")
             separator.pack(fill=tk.X, padx=15, pady=10)
 
             alerts_frame = tk.Frame(alert_content, bg="white")
             alerts_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
 
-            # Track if we have any alerts
             has_alerts = False
 
-            # Check for low stock items
             low_stock_items = []
             for item_dict in inventory_data:
                 for item_id, item_details in item_dict.items():
@@ -670,7 +604,7 @@ class DashboardPage(tk.Frame):
                 ).pack(anchor="w")
 
                 # Show low stock items
-                for i, item in enumerate(low_stock_items[:5]):  # Limit to 5 items
+                for i, item in enumerate(low_stock_items[:5]):
                     tk.Label(
                         alert_frame,
                         text=f"• {item['name']} ({item['quantity']} left)",
@@ -705,24 +639,20 @@ class DashboardPage(tk.Frame):
                     fg="green"
                 ).pack(anchor="w", pady=15)
 
-                # Add a good status image or icon
                 status_frame = tk.Frame(alert_content, bg="white")
                 status_frame.pack(pady=15)
 
-                # Create a simple "check mark" using a canvas
                 canvas = tk.Canvas(status_frame, width=50, height=50, bg="white", highlightthickness=0)
                 canvas.pack()
 
-                # Draw a green circle
                 canvas.create_oval(5, 5, 45, 45, fill="#4CAF50", outline="#4CAF50")
 
-                # Draw a white checkmark
                 canvas.create_line(15, 25, 25, 35, fill="white", width=3)
                 canvas.create_line(25, 35, 35, 15, fill="white", width=3)
 
         except Exception as e:
             tk.Label(
-                alert_content,  # ✅ Use the scrollable frame for error messages
+                alert_content,
                 text=f"Error loading alerts: {str(e)}",
                 font=("Helvetica", 12),
                 bg="white",
@@ -730,7 +660,6 @@ class DashboardPage(tk.Frame):
             ).pack(anchor="w", pady=5)
 
     def on_close(self):
-        """ Ensure the program exits properly when the window is closed. """
         plt.close("all")
         self.master.quit()
         self.master.destroy()
