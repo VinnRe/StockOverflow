@@ -28,8 +28,8 @@ class StockOverflowApp(tk.Tk):
         load_dotenv()
         DB_URL = os.getenv("DB_URL")
 
-        # Initialize Firebase Admin SDK (Make sure your .env has DB_URL set)
-        cred = credentials.Certificate("key.json")  # Update path
+        # Initialize Firebase Admin SDK
+        cred = credentials.Certificate("key.json")
         db = firebase_admin.initialize_app(cred, {"databaseURL": DB_URL})
 
         icon_path = os.path.join(os.path.dirname(__file__), "so_ico.png")
@@ -37,10 +37,10 @@ class StockOverflowApp(tk.Tk):
 
         # Main app setup
         self.title(self.config.APP_NAME)
-        self.geometry("1000x750")  # Increased window size for better visibility
+        self.geometry("1000x750")
         self.configure(bg=self.config.BG_COLOR)
         
-        # Current user (mock for now)
+        # Default user
         self.current_user = {"username": "Staff", "role": "Staff"}
         
         # Initialize UI components
@@ -65,32 +65,26 @@ class StockOverflowApp(tk.Tk):
         self.button_font = font.Font(family="Helvetica", size=20, weight="bold")
     
     def create_ui(self):
-        # Create app header with logo/title
+        # Creates all the header, main container frame, navbar, and main container area
         self.create_app_header()
         
-        # Create main container frame
         self.main_frame = tk.Frame(self, bg=self.config.BG_COLOR)
         self.main_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=10)
         
-        # Create navigation bar
         self.create_navbar()
         
-        # Create content area
         self.content_frame = tk.Frame(self.main_frame, bg=self.config.BG_COLOR, bd=2, relief=tk.GROOVE)
         self.content_frame.pack(fill=tk.BOTH, expand=True, pady=10)
         
-        # Create status bar
         self.create_status_bar()
         
         # Default to showing recipes
         self.show_recipes()
     
     def create_app_header(self):
-        """Create an app header with logo and title"""
         header_frame = tk.Frame(self, bg=self.config.PRIMARY_COLOR, height=60)
         header_frame.pack(fill=tk.X)
         
-        # App title
         app_title = tk.Label(
             header_frame,
             text=self.config.APP_NAME,
@@ -100,7 +94,6 @@ class StockOverflowApp(tk.Tk):
         )
         app_title.pack(side=tk.LEFT, padx=20, pady=10)
         
-        # Current user display
         self.user_label = tk.Label(
             header_frame,
             text=f"User: {self.current_user['username']} ({self.current_user['role']})",
@@ -117,7 +110,7 @@ class StockOverflowApp(tk.Tk):
         nav_buttons_frame = tk.Frame(navbar, bg=self.config.BG_COLOR)
         nav_buttons_frame.pack(fill=tk.X, padx=10, pady=10)
         
-        for i in range(5):  # Changed from 4 to 5 to accommodate the dashboard button
+        for i in range(5): 
             nav_buttons_frame.columnconfigure(i, weight=1)
         
         self.green_button_style = {
@@ -150,13 +143,11 @@ class StockOverflowApp(tk.Tk):
             "cursor": "hand2"
         }
 
-        # Initialize all buttons as None
         self.dashboard_btn = None
         self.recipes_btn = None
         self.inventory_btn = None
         self.orders_btn = None
 
-        # Conditionally create buttons based on user role
         if self.current_user.get("role") == "Admin":
             self.dashboard_btn = tk.Button(
                 nav_buttons_frame, 
@@ -190,7 +181,6 @@ class StockOverflowApp(tk.Tk):
             )
             self.orders_btn.grid(row=0, column=3, padx=10)
         else:
-            # For non-admin users, only show recipes
             self.recipes_btn = tk.Button(
                 nav_buttons_frame, 
                 text="Recipes",
@@ -205,10 +195,9 @@ class StockOverflowApp(tk.Tk):
         self.profile_btn = tk.Button(
             nav_buttons_frame, text=button_text, command=button_command, **self.red_button_style
         )
-        self.profile_btn.grid(row=0, column=4, padx=10)  # Changed from column=3 to column=4
+        self.profile_btn.grid(row=0, column=4, padx=10)
     
     def create_status_bar(self):
-        """Create a status bar at the bottom of the app"""
         status_frame = tk.Frame(self, bg="#f0f0f0", height=25)
         status_frame.pack(side=tk.BOTTOM, fill=tk.X)
         
@@ -231,13 +220,10 @@ class StockOverflowApp(tk.Tk):
             self.current_user = {"username": username, "role": "Admin"}
             dialog.destroy()
 
-            # Update navbar button without recreating the whole navbar
             self.profile_btn.config(text="Logout", command=self.handle_logout)
         
-            # Update user label in header
             self.user_label.config(text=f"User: {username} (Admin)")
 
-            # Add Dashboard button if it doesn't exist
             if not self.dashboard_btn:
                 nav_buttons_frame = self.profile_btn.master
                 self.dashboard_btn = tk.Button(
@@ -248,12 +234,10 @@ class StockOverflowApp(tk.Tk):
                 )
                 self.dashboard_btn.grid(row=0, column=0, padx=10)
                 
-                # Move other buttons one column to the right
                 if self.recipes_btn:
                     self.recipes_btn.grid_forget()
                     self.recipes_btn.grid(row=0, column=1, padx=10)
 
-            # Add Inventory and Orders buttons if they don't exist
             if not self.inventory_btn:
                 nav_buttons_frame = self.profile_btn.master
                 self.inventory_btn = tk.Button(
@@ -274,7 +258,6 @@ class StockOverflowApp(tk.Tk):
                 )
                 self.orders_btn.grid(row=0, column=3, padx=10)
 
-            # Show dashboard after login
             self.show_dashboard()
         
             self.update_idletasks()
@@ -305,7 +288,6 @@ class StockOverflowApp(tk.Tk):
                 self.orders_btn.destroy()
                 self.orders_btn = None
             
-            # Reset recipes button position
             if self.recipes_btn:
                 self.recipes_btn.grid_forget()
                 self.recipes_btn.grid(row=0, column=0, padx=10)
@@ -373,7 +355,6 @@ class StockOverflowApp(tk.Tk):
         dashboard_page.pack(fill=tk.BOTH, expand=True)
     
     def switch_profile(self):
-        # Create a dialog window with improved styling
         dialog = tk.Toplevel(self)
         dialog.title("Admin Access")
         dialog.geometry("400x350")
@@ -385,7 +366,6 @@ class StockOverflowApp(tk.Tk):
 
         self.center_window(dialog, 400, 350)
         
-        # Add header
         header_frame = tk.Frame(dialog, bg=self.config.PRIMARY_COLOR, height=40)
         header_frame.pack(fill=tk.X)
         
@@ -398,11 +378,9 @@ class StockOverflowApp(tk.Tk):
         )
         header_label.pack(pady=8)
         
-        # Content frame
         content_frame = tk.Frame(dialog, bg=self.config.BG_COLOR, padx=20, pady=20)
         content_frame.pack(fill=tk.BOTH, expand=True)
 
-        # Add username label and entry field
         tk.Label(
             content_frame,
             text="Username:",
@@ -415,7 +393,6 @@ class StockOverflowApp(tk.Tk):
         username_entry.pack(anchor="w", pady=(0, 10), fill=tk.X)
         username_entry.focus_set()
 
-        # Add password label and entry field
         tk.Label(
             content_frame,
             text="Password:",

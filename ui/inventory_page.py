@@ -16,19 +16,13 @@ class InventoryPage(tk.Frame):
         self.normal_font = normal_font
         
         self.inventory_data = FoodInventory().displayItems()
-
-        # Create UI components
         self.create_ui()
-        
-        # Load inventory data
         self.load_inventory_data()
     
     def create_ui(self):
-        # Create header
         header = tk.Frame(self, bg=self.config.BG_COLOR)
         header.pack(fill=tk.X, pady=10)
         
-        # Title
         title_label = tk.Label(
             header, 
             text="Inventory Management",
@@ -38,7 +32,6 @@ class InventoryPage(tk.Frame):
         )
         title_label.pack(side=tk.LEFT, padx=15)
         
-        # Add item button (only for Admin)
         if self.current_user["role"] == "Admin":
             self.edit_btn = tk.Button(
                 header, 
@@ -57,17 +50,14 @@ class InventoryPage(tk.Frame):
             )
             add_btn.pack(side=tk.RIGHT, padx=15)
         
-        # Add legend frame
         self.create_legend()
         
-        # Table frame
         table_frame = tk.Frame(self, bg=self.config.BG_COLOR)
         table_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=10)
 
-        # Sorting state tracker
         self.sort_order = {"itemName": False, "stock": False, "totalQuantity": False}
         
-        # Create table with improved styling
+        # Create table with styles
         style = ttk.Style()
         style.configure("Treeview", rowheight=25)
         style.configure("Treeview.Heading", font=("Helvetica", 12, "bold"))
@@ -81,17 +71,13 @@ class InventoryPage(tk.Frame):
         self.tree.column("stock", width=200, anchor="center")
         self.tree.column("totalQuantity", width=80, anchor="center")
         
-        # Add scrollbar
         scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.tree.pack(fill=tk.BOTH, expand=True)
-
-        # Bind selection event to enable/disable Edit button
         self.tree.bind("<<TreeviewSelect>>", self.on_treeview_select)
 
     def on_treeview_select(self, event):
-        """Enable the Edit button if a row is selected, otherwise disable it."""
         selected_item = self.tree.selection()
         if selected_item:
             self.edit_btn.config(state=tk.NORMAL)
@@ -99,7 +85,6 @@ class InventoryPage(tk.Frame):
             self.edit_btn.config(state=tk.DISABLED)
     
     def on_edit_button_click(self):
-        """Trigger the same functionality as double-clicking a row."""
         selected_item = self.tree.selection()
         if selected_item:
             self.on_item_double_click(None)
@@ -166,7 +151,6 @@ class InventoryPage(tk.Frame):
         for row in self.tree.get_children():
             self.tree.delete(row)
 
-        # Configure tags for styling
         self.tree.tag_configure("low_stock", background=self.config.LIGHTY_COLOR, foreground="white")
         self.tree.tag_configure("near_expiry", background=self.config.ORANGE_COLOR, foreground="black")
         self.tree.tag_configure("low_and_near", background=self.config.SECONDARY_COLOR, foreground="black")
@@ -206,14 +190,12 @@ class InventoryPage(tk.Frame):
             expiry_dates = item_values[1]
             total_quantity = item_values[2]
 
-            # Create pop-up window with improved styling
             dialog = tk.Toplevel(self)
             dialog.title("Item Details")
             dialog.geometry("400x350")
             dialog.configure(bg=self.config.BG_COLOR)
             self.center_window(dialog, 400, 350)
 
-            # Add a header
             header_frame = tk.Frame(dialog, bg=self.config.PRIMARY_COLOR, height=40)
             header_frame.pack(fill=tk.X)
             
@@ -226,7 +208,6 @@ class InventoryPage(tk.Frame):
             )
             header_label.pack(pady=8)
 
-            # Content frame
             content_frame = tk.Frame(dialog, bg=self.config.BG_COLOR, padx=20, pady=20)
             content_frame.pack(fill=tk.BOTH, expand=True)
 
@@ -285,7 +266,6 @@ class InventoryPage(tk.Frame):
             total_quantity_entry.pack(anchor="w", pady=(0, 10), fill=tk.X)
 
             def save_changes():
-                """Save the updated details only if user is an admin."""
                 if self.current_user["role"] != "Admin":
                     return
 
@@ -297,7 +277,6 @@ class InventoryPage(tk.Frame):
                     messagebox.showerror("Error", "Total quantity must be a number.")
                     return
 
-                # Logic to update the item in Firebase
                 item_id = None
                 for item_dict in self.inventory_data:
                     for key, value in item_dict.items():
@@ -469,7 +448,6 @@ class InventoryPage(tk.Frame):
         self.sort_order[column_name] = not self.sort_order[column_name]
         order_symbol = "▲" if self.sort_order[column_name] else "▼"
 
-        # Reset all headers and update the clicked one
         self.tree.heading("itemName", text="Item Name")
         self.tree.heading("stock", text="Expiry Date")
         self.tree.heading("totalQuantity", text="Quantity")

@@ -30,7 +30,10 @@ class RecipePage(tk.Frame):
         if self.current_user["role"] == "Admin":
             add_btn = tk.Button(header, text="Add Recipe", command=self.add_recipe, **self.config.BUTTON_STYLES["primary"])
             add_btn.pack(side=tk.RIGHT, padx=5)
-            self.delete_btn = tk.Button(header, text="Delete Recipe", command=self.delete_recipe, state=tk.DISABLED, **self.config.BUTTON_STYLES["secondary"])
+            self.delete_btn = tk.Button(header, text="Delete Recipe", 
+                                        command=self.delete_recipe, state=tk.DISABLED, 
+                                        **self.config.BUTTON_STYLES["secondary"]
+                                        )
             self.delete_btn.pack(side=tk.RIGHT, padx=5)
         
         table_frame = tk.Frame(self, bg=self.config.BG_COLOR)
@@ -55,7 +58,10 @@ class RecipePage(tk.Frame):
         self.action_frame = tk.Frame(self, bg=self.config.BG_COLOR)
         self.action_frame.pack(fill=tk.X, pady=5)
 
-        self.make_button = tk.Button(self.action_frame, text="Make Recipe", command=self.make_recipe, state=tk.DISABLED, **self.config.BUTTON_STYLES["primary"])
+        self.make_button = tk.Button(
+                            self.action_frame, text="Make Recipe", 
+                            command=self.make_recipe, state=tk.DISABLED, 
+                            **self.config.BUTTON_STYLES["primary"])
         self.make_button.pack(pady=5)
 
         self.load_recipe_data()
@@ -78,12 +84,12 @@ class RecipePage(tk.Frame):
             self.selected_recipe_id = self.recipes_tree.item(selected, "tags")[0]
             self.make_button.config(state=tk.NORMAL)
             if hasattr(self, 'delete_btn'):
-                self.delete_btn.config(state=tk.NORMAL)  # ✅ Enable delete button
+                self.delete_btn.config(state=tk.NORMAL)
         else:
             self.selected_recipe_id = None
             self.make_button.config(state=tk.DISABLED)
             if hasattr(self, 'delete_btn'):
-                self.delete_btn.config(state=tk.DISABLED)  # ✅ Disable delete button
+                self.delete_btn.config(state=tk.DISABLED)
 
     def make_recipe(self):
         if not self.selected_recipe_id:
@@ -157,7 +163,6 @@ class RecipePage(tk.Frame):
         ingredients_list = tk.Listbox(content_frame, height=5)
         ingredients_list.pack(pady=(10, 5), fill=tk.BOTH, expand=True)
 
-
         recipe_ingredients_obj = Ingredient()
         recipe_ingredients = {}
 
@@ -211,17 +216,6 @@ class RecipePage(tk.Frame):
         )
         cancel_button.pack(pady=5)
 
-
-    def center_window(self, window, width, height):
-        screen_width = window.winfo_screenwidth()
-        screen_height = window.winfo_screenheight()
-        
-        x = (screen_width - width) // 2
-        y = (screen_height - height) // 2
-        
-        # Set the position
-        window.geometry(f"{width}x{height}+{x}+{y}")
-
     def delete_recipe(self):
         if not self.selected_recipe_id:
             messagebox.showerror("Error", "No recipe selected.")
@@ -234,9 +228,18 @@ class RecipePage(tk.Frame):
         is_deleted = StaffController().deleteRecipe(self.selected_recipe_id)
         if is_deleted:
             messagebox.showinfo("Success", "Recipe deleted successfully.")
-            self.load_recipe_data()  # Refresh table
-            self.selected_recipe_id = None  # Reset selection
+            self.load_recipe_data()
+            self.selected_recipe_id = None
             if hasattr(self, 'delete_btn'):
-                self.delete_btn.config(state=tk.DISABLED)  # ✅ Disable delete button
+                self.delete_btn.config(state=tk.DISABLED)
         else:
             messagebox.showerror("Error", "Failed to delete recipe.")
+
+    def center_window(self, window, width, height):
+        screen_width = window.winfo_screenwidth()
+        screen_height = window.winfo_screenheight()
+        
+        x = (screen_width - width) // 2
+        y = (screen_height - height) // 2
+        
+        window.geometry(f"{width}x{height}+{x}+{y}")
