@@ -8,3 +8,10 @@ class InventoryItem:
         self.itemName = itemName
         self.stock = stock  # Expiry-date mapping
         self.totalQuantity = sum(stock.values())  # Calculate total quantity dynamically
+
+    def to_dict(self):
+        return {
+            "itemName": self.itemName,
+            "stock": self.stock,
+            "totalQuantity": self.totalQuantity
+        }

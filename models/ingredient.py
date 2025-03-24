@@ -1,28 +1,7 @@
 class Ingredient:
 	def __init__(self):
-		self.ingredients = []
+		self.ingredients = {}
 
-	def addIngredient(self, ingredient, quantity):
-		self.ingredients.append({
-			"ingredient": ingredient, 
-			"quantity": quantity
-		})
+	def add_ingredient(self, ingredient, quantity):
+		self.ingredients[ingredient] = int(quantity)
 		return self.ingredients
-
-	def getIngredients(self):
-		# print(self.ingredients)
-		return self.ingredients
-
-	def removeIngredient(self, ingredient):
-		self.ingredients = [item for item in self.ingredients if item["ingredient"] != ingredient]
-		return self.ingredients
-
-	def editIngredient(self, ingredient, quantity):
-		for item in self.ingredients:
-			if item["ingredient"] == ingredient:
-				item["quantity"] = quantity
-				break
-
-		# print(self.ingredients)
-		return self.ingredients
-

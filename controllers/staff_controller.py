@@ -5,7 +5,7 @@ class StaffController:
         self.ref = db.reference('db')
         self.recipes_ref = self.ref.child('recipes')
         self.inventory_ref = self.ref.child('inventory')
-    
+        
     def addRecipe(self, recipe):
         """Add a new recipe to the database."""
         try:

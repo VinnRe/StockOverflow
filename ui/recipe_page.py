@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime
 from controllers.staff_controller import StaffController
+from models.recipe import Recipe
+from models.ingredient import Ingredient
 
 class RecipePage(tk.Frame):
     def __init__(self, parent, db, config, current_user, title_font, header_font, normal_font):
@@ -155,14 +157,16 @@ class RecipePage(tk.Frame):
         ingredients_list = tk.Listbox(content_frame, height=5)
         ingredients_list.pack(pady=(10, 5), fill=tk.BOTH, expand=True)
 
-        recipe_ingredients = {}  # Dictionary to store ingredients
+
+        recipe_ingredients_obj = Ingredient()
+        recipe_ingredients = {}
 
         def add_ingredient():
             selected_item = ingredient_var.get()
             quantity = quantity_var.get()
             if selected_item and quantity.isdigit():
                 ingredients_list.insert(tk.END, f"{selected_item} ({quantity})")
-                recipe_ingredients[selected_item] = int(quantity)
+                recipe_ingredients.update(recipe_ingredients_obj.add_ingredient(selected_item, quantity))
             else:
                 messagebox.showerror("Error", "Please select an ingredient and enter a valid quantity.")
 
@@ -172,8 +176,10 @@ class RecipePage(tk.Frame):
                 messagebox.showerror("Error", "Recipe name and ingredients are required.")
                 return
             
-            new_recipe = {"recipeName": recipe_name, "ingredients": recipe_ingredients}
-            StaffController().addRecipe(new_recipe)
+            new_recipe = Recipe(recipe_name, recipe_ingredients)
+            new_recipe_dict = new_recipe.to_dict()
+            print(new_recipe_dict)
+            StaffController().addRecipe(new_recipe_dict)
             messagebox.showinfo("Success", "Recipe added successfully.")
             dialog.destroy()
             self.load_recipe_data()

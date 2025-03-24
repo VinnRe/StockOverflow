@@ -1,3 +1,5 @@
+from models.inventory import InventoryItem
+
 from firebase_admin import db
 from datetime import datetime, timedelta
 
@@ -146,13 +148,9 @@ class FoodInventory:
 
             else:
                 # If item doesn't exist, create a new entry
-                totalQuantity = sum(new_stock.values())
-                new_item = {
-                    "itemName": itemName,
-                    "stock": new_stock,
-                    "totalQuantity": totalQuantity
-                }
-                new_ref = self.items_ref.push(new_item)
+                new_item = InventoryItem(itemName, new_stock)
+                new_item_dict = new_item.to_dict()
+                new_ref = self.items_ref.push(new_item_dict)
                 print(f"Created new item: {itemName}")
                 return {new_ref.key: new_item}
 
